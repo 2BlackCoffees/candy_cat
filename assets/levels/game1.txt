@@ -1,0 +1,13 @@
+UUUUUUUUUUUUUUUUUUUUUUUUUU
+U      5    P            U
+U      4    Q            U
+U      3    Q            U
+U  33UUUUUU   UUUUU      U
+U  22UUUUUU   UUUUU      U
+U      1    R            U
+U      2    R            U
+U      3    S            U
+U  11UUUUUU   UUUUU      U
+U      4    T            U
+U      5    T            U
+33322211111222333444555666
