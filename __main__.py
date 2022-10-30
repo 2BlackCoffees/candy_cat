@@ -1,10 +1,4 @@
 """
-All start here
-First install:
-python3 -m pip install -U pygame --user
-
-Start program from 1 directory above with:
-python3 wall
 
 Lint with (from 1 directory above):
 pylint --extension-pkg-whitelist=pygame wall
