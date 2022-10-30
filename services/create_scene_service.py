@@ -3,7 +3,6 @@
 Create scene and handle the state machine of the game
 """
 from typing import List
-from enum import Enum
 from domain.static_sprite import StaticSprite
 from domain.sprites import Ball
 from domain.sprites import Player
@@ -21,18 +20,11 @@ from domain.score_handler import ScoreHandler
 from services.bricks_creator_service import BricksCreatorService
 from infrastructure.read_game_from_file import ReadGameFromFile
 from repository.score_save import FileScoreSaver
+from services.game_state import GameState
+from students.exercises import Exercises
 import pygame
 
-class GameState(Enum):
-    """
-    Various states belonging to the state machine
-    """
-    WAITING_PLAYER_READY_BEFORE_LEVEL_REPLAY = 1
-    WAITING_PLAYER_READY_BEFORE_GAME_RESTART = 2
-    WAITING_PLAYER_READY_BEFORE_NEXT_LEVEL = 3
-    PLAYING = 4
-    ASKING_USER_NAME = 5
-    SHOWING_SCORE = 6
+
 
 class CreateSceneService(WinLostManagement, GameTaskChanger):
     """
@@ -48,7 +40,7 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
         self.score_height: int = 80
         self.from_height: int = 50
         self.get_name: GetName = GetName(self.screen)
-        self.game_state: GameState = GameState.WAITING_PLAYER_READY_BEFORE_LEVEL_REPLAY
+        self.game_state: GameState = Exercises.get_initial_state()
         self.file_score_saver: FileScoreSaver = FileScoreSaver('scores.txt')
         self.score_handler: ScoreHandler = ScoreHandler(self.file_score_saver)
         self.remaining_balls: int = 3
@@ -99,9 +91,10 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
         """
         Create game as defined by game_index
         """
-        if self.game_index >= len(self.game_list):
-            self.game_index = 0
-        game_name = self.game_list[self.game_index]
+        self.game_index = Exercises.restart_from_first_scene_after_last_scene(self.game_index, len(self.game_list))
+
+        game_name = Exercises.return_game_name(self.game_index, self.game_list)
+
         self.score = Score(self.screen, self.score_height, self.current_score, self.remaining_balls)
         self.collision_handler = CollisionHandlerSprites(self.score, self)
         bricks_creator_service = BricksCreatorService(
@@ -116,38 +109,37 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
         """
         Initialize a new game when the player lost
         """
-        self.remaining_balls = 3
-        self.current_score = 0
-        self.game_index = 0
+
+        self.remaining_balls, self.current_score, self.game_index = \
+          Exercises.init_game_values()
 
     def inform_player_lost(self):
         """
         Behaviour when the player lost
         """
-        self.remaining_balls -= 1
+        self.remaining_balls = Exercises.new_number_balls_after_a_ball_was_missed(self.remaining_balls)
         self.score.set_number_balls(self.remaining_balls)
+        user_is_elected_to_wall_of_fame = False
         if self.remaining_balls > 0:
             self.message = ["You beginner, you lost :-)",
                             f'You have another {self.remaining_balls} ball(s)']
-            self.game_state = GameState.WAITING_PLAYER_READY_BEFORE_LEVEL_REPLAY
         else:
             if self.score_handler.is_wall_of_fames(self.score.get_score()):
                 pygame.mixer.Sound.play(self.go_game_board)
                 self.get_name.clear_input()
-                self.game_state = GameState.ASKING_USER_NAME
+                user_is_elected_to_wall_of_fame = True
             else:
                 pygame.mixer.Sound.play(self.lost_game)
                 self.message = ["No wall of fame for this time ... ",
                                 "your score is far too low!"]
-                self.game_state = GameState.WAITING_PLAYER_READY_BEFORE_GAME_RESTART
-
+        self.game_state = Exercises.get_next_state_when_lost(self.remaining_balls, user_is_elected_to_wall_of_fame)
     def inform_player_won(self):
         """
         Behaviour when the player won
         """
         self.message = ["Well done :-)",
                         "Next one will be much harder :-)",
-                         'You have another {self.remaining_balls} ball(s)']
+                        f'You have another {self.remaining_balls} ball(s)']
         self.game_state = GameState.WAITING_PLAYER_READY_BEFORE_NEXT_LEVEL
         pygame.mixer.Sound.play(self.next_level)
 
@@ -158,20 +150,18 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
         if self.game_state == GameState.ASKING_USER_NAME:
             self.score_handler.add_score(
                 self.get_name.get_user_string(), self.score.get_score())
-            self.game_state = GameState.SHOWING_SCORE
         elif self.game_state in [ GameState.SHOWING_SCORE,
                                   GameState.WAITING_PLAYER_READY_BEFORE_GAME_RESTART ]:
             self.init_game()
             self.create_game()
-            self.game_state = GameState.PLAYING
-        elif self.game_state == GameState.WAITING_PLAYER_READY_BEFORE_LEVEL_REPLAY:
-            self.game_state = GameState.PLAYING
         elif self.game_state == GameState.WAITING_PLAYER_READY_BEFORE_NEXT_LEVEL:
             self.current_score += self.score.get_score()
             self.remaining_balls = 3
             self.game_index += 1
             self.create_game()
-            self.game_state = GameState.PLAYING
+
+
+        self.game_state = Exercises.get_next_state(self.game_state)
 
     def update_game_scene(self):
         """
