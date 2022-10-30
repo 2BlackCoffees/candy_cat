@@ -33,7 +33,6 @@ class CollisionHandler(ABC):
         """
         vertical_collision will return a bool specifying if a
         vertical_collision collision happened and the int represents its intensity
-
         """
 
     @abstractmethod
@@ -48,10 +47,9 @@ class CollisionHandler(ABC):
         """
         When a sprite is bumped, it can modify the score
         """
-    
+
     @abstractmethod
     def unsubscribe(self, sprite) -> None:
         """
         Unsubscribe the sprite
         """
-

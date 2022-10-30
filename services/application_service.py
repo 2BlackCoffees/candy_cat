@@ -1,11 +1,10 @@
 """
 Main Module
 """
+from domain.common import Common
+from services.create_scene_service import CreateSceneService
 import pygame
 from pygame import mixer
-from domain.common import Common
-# from pprint import pprint
-from services.create_scene_service import CreateSceneService
 
 def start():
     """
@@ -17,11 +16,14 @@ def start():
     mixer.init()
     screen: pygame.Surface = pygame.display.set_mode((screen_width, screen_height),
                                      pygame.HWSURFACE | pygame.DOUBLEBUF)# | pygame.FULLSCREEN)
+    start_sound = pygame.mixer.Sound(Common.START_MUSIC)
+    pygame.mixer.Sound.play(start_sound)
 
     pygame.display.set_caption('Wall breaker')
-    create_scene_service: CreateSceneService = CreateSceneService([Common.GAME_NAME + 'assets/levels/game3', 
-                                                                   Common.GAME_NAME + 'assets/levels/game1', 
-                                                                   Common.GAME_NAME + 'assets/levels/game2'],screen)
+    create_scene_service: CreateSceneService = CreateSceneService(
+        [Common.GAME_NAME + 'assets/levels/test',
+        Common.GAME_NAME + 'assets/levels/game2',
+        Common.GAME_NAME + 'assets/levels/game1'],screen)
 
     clock: pygame.time.Clock = pygame.time.Clock()
 

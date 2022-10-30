@@ -4,14 +4,14 @@ Handle all sprites
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Tuple
-import pygame
 from domain.common import Common
 from domain.game_task_handler import WinLostManagement
 from domain.collision_handler import CollisionHandler
-from domain.static_sprite import StaticSprite
 from domain.static_sprite import Brick
+from domain.static_sprite import StaticSprite
 from domain.static_sprite import DestroyableStaticSprite
 from domain.static_sprite import DestroyableStaticSpriteImages
+import pygame
 
 class GameMovingSprite(StaticSprite, ABC):
     """
@@ -115,13 +115,18 @@ class Ball(GameMovingSprite):
         super().__init__(screen)
         self.change_x: int = 5
         self.change_y: int = 5
-        self.sound =  pygame.mixer.Sound(Common.MISSED_BALL)
+        self.sound_missed_ball =  pygame.mixer.Sound(Common.MISSED_BALL)
 
     def subscribe(self, win_lost_management: WinLostManagement) -> None:
+        """
+        Inversion of control to inform when game is lost
+        """
         self.win_lost_management = win_lost_management
-    
-    def bumped(self, from_side_bumped: dict) -> None:
 
+    def bumped(self, from_side_bumped: dict) -> None:
+        """
+        Inform that ball was bumped
+        """
         self.horizontal_collision, _ = \
             self.collision_handler.horizontal_collision_side_bumped(from_side_bumped)
 
@@ -129,6 +134,9 @@ class Ball(GameMovingSprite):
             self.collision_handler.vertical_collision_side_bumped(from_side_bumped)
 
     def move(self) -> None:
+        """
+        Move ball
+        """
         if self.collision_handler is not None:
             self.collision_handler.inform_sprite_about_to_move()
 
@@ -138,7 +146,7 @@ class Ball(GameMovingSprite):
             self.change_y = -self.change_y
             if self.image.rect.y + self.image.height > self.display.screen_height:
                 self.win_lost_management.inform_player_lost()
-                pygame.mixer.Sound.play(self.sound)
+                pygame.mixer.Sound.play(self.sound_missed_ball)
 
         elif self.horizontal_collision or \
            (self.image.rect.x < 1 or \
@@ -153,40 +161,65 @@ class Ball(GameMovingSprite):
         super().move()
 
 class BreakableBrick(DestroyableStaticSprite):
-
+    """
+    Handles breakable bricks
+    """
     def __init__(self, screen: pygame.Surface, number_remaining_bumps: int,
                  destroyable_sprites_images: DestroyableStaticSpriteImages):
-        super().__init__(screen, number_remaining_bumps, destroyable_sprites_images, True, Common.BUMP_BRICK, Common.GLASS_BREAK)
+        super().__init__(screen, number_remaining_bumps, \
+                            destroyable_sprites_images, True, \
+                            Common.BUMP_BRICK, Common.DESTROYED_BRICK)
         self.max_bumped_value: int = 0
 
 
     def bumped(self, from_side_bumped: dict) -> None:
+        """
+        Override bumped behaviour
+        """
         self.collision_handler.add_score(5)
         super().bumped(from_side_bumped)
-    
+
     def sprite_destroyed(self):
+        """
+        Destroyed? Remove more points
+        """
         self.collision_handler.add_score(100)
 
 
-class UnbreakableBrick(Brick):
+class UnbreakableBrick(Brick): # pylint: disable=too-few-public-methods
+    """
+    Handle unbreakable bricks
+    """
     def __init__(self, screen: pygame.Surface):
         super().__init__(screen, False, Common.BUMP_UNBREAKABLE_BRICK)
 
     def bumped(self, from_side_bumped: dict) -> None:
+        """
+        Override bumped behaviour
+        """
         self.play_bump()
 
 class PoisonedBrick(DestroyableStaticSprite):
-
+    """
+    Poison bricks remove pints by collisions and even more when they disappear
+    """
     def __init__(self, screen: pygame.Surface, number_remaining_bumps: int,
                  destroyable_sprites_images: DestroyableStaticSpriteImages):
-        super().__init__(screen, number_remaining_bumps, destroyable_sprites_images, False, Common.BUMP_POISON, Common.GLASS_BREAK)
+        super().__init__(screen, number_remaining_bumps, destroyable_sprites_images,
+                         False, Common.BUMP_POISON, Common.DESTROYED_POISON)
         self.max_bumped_value: int = 0
 
     def bumped(self, from_side_bumped: dict) -> None:
+        """
+        Bumped? Remove points
+        """
         self.collision_handler.add_score(-10)
         super().bumped(from_side_bumped)
-    
+
     def sprite_destroyed(self):
+        """
+        Destroyed? Remove more points
+        """
         self.collision_handler.add_score(-200)
 
 class Player(UserControlledGameMovingSprite):
@@ -208,8 +241,8 @@ class Player(UserControlledGameMovingSprite):
 
     def get_best_ball_place_before_start(self) -> Tuple[int, int]:
         """
-        Before we start, the ball should be placed 
-        right in the middle of the player 
+        Before we start, the ball should be placed
+        right in the middle of the player
         """
         return self.image.rect.x + self.image.width // 2, \
                self.image.rect.y
@@ -261,6 +294,9 @@ class Player(UserControlledGameMovingSprite):
         #    self.rect.y = mouse_position_y -  self.height // 2
 
     def bumped(self, from_side_bumped: dict) -> None:
+        """
+        Ball bumped with the player
+        """
         pygame.mixer.Sound.play(self.sound)
         horizontal_collision, _ = \
             self.collision_handler.horizontal_collision_side_bumped(from_side_bumped)

@@ -5,8 +5,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Tuple, List
 from dataclasses import dataclass
-import pygame
 from domain.collision_handler import CollisionHandler
+import pygame
 
 @dataclass
 class Display:
@@ -119,19 +119,30 @@ class StaticSprite(pygame.sprite.Sprite, ABC):
         """
 
 class Brick(StaticSprite):
+    """
+    Default behaviour for a brick
+    """
     def __init__(self, screen: pygame.Surface, bring_point: bool, bump_sound: str):
         self.bring_point = bring_point
         super().__init__(screen)
         self.bump_sound = pygame.mixer.Sound(bump_sound)
 
     def play_bump(self):
+        """
+        Ply bump sound
+        """
         pygame.mixer.Sound.play(self.bump_sound)
 
     def bring_points(self) -> bool:
+        """
+        Inform whether the brick brink points when bumped
+        """
         return self.bring_point
 
-class DestroyableStaticSpriteImages(object):
-
+class DestroyableStaticSpriteImages: # pylint: disable=too-few-public-methods
+    """
+    Destroyable classes automatically disappear when they were several times bumped
+    """
     def __init__(self, base_image_path: str, number_opacities: int, width: int, height: int):
         self.number_opacities: int = number_opacities + 2
         self.base_image: pygame.Surface = pygame.image.load(base_image_path).convert_alpha()
@@ -141,22 +152,31 @@ class DestroyableStaticSpriteImages(object):
         self.__create_all_opacities()
 
     def __create_all_opacities(self) -> None:
+        """
+        Breakable bricks change opacity when they get bumped.
+        All the opacities are created upfront to be sure the effect will be smooth
+        """
         source = self.base_image
 
         self.opac_images.clear()
         for opacity in range(self.number_opacities):
             new_image = source.copy()
-            new_image.fill((255, 255, 255, 
-                            100 + opacity * 155 // self.number_opacities), 
+            new_image.fill((255, 255, 255,
+                            100 + opacity * 155 // self.number_opacities),
                             None, pygame.BLEND_RGBA_MULT)
             self.opac_images.append(new_image)
         self.opac_images.append(source)
-    
+
     def get_all_images(self) -> List[pygame.Surface]:
+        """
+        Return all possible opacities
+        """
         return self.opac_images
 
 class DestroyableStaticSprite(Brick):
-
+    """
+    Handle the behaviour of destroyable bricks
+    """
     def __init__(self, screen: pygame.Surface, number_remaining_bumps: int,
                  destroyable_sprites_images: DestroyableStaticSpriteImages,
                  bring_points: bool, bump_sound: str, destroyed_sound: str = None):
@@ -170,25 +190,33 @@ class DestroyableStaticSprite(Brick):
         if destroyed_sound is not None:
             self.destroyed_sound = pygame.mixer.Sound(destroyed_sound)
 
-
     def set_number_bumped(self, number_remaining_bumps: int) -> DestroyableStaticSprite:
+        """
+        Specify how many remaining bumps are allowed before disappearing
+        """
         self.number_remaining_bumps = number_remaining_bumps
         return self
 
     def bumped(self, from_side_bumped: dict) -> None:
+        """
+        Handle bump
+        """
         if self.number_remaining_bumps > 0:
             self.number_remaining_bumps -= 1
             if self.number_remaining_bumps == 0:
                 self.collision_handler.add_score(100)
-                self.collision_handler.unsubscribe(self)  
+                self.collision_handler.unsubscribe(self)
                 if self.destroyed_sound is not None:
                     pygame.mixer.Sound.play(self.destroyed_sound)
             else:
-              self.image.image = self.image.opac_images[self.number_remaining_bumps]
-              self.play_bump()
+                self.image.image = self.image.opac_images[self.number_remaining_bumps]
+                self.play_bump()
 
     def set_image(self, width: int, height: int,
                   image_path: str) -> StaticSprite:
+        """
+        Define the original image
+        """
         super().set_image(width, height, image_path)
         self.image.opac_images = \
             self.destroyable_sprites_images.get_all_images()
@@ -198,8 +226,12 @@ class DestroyableStaticSprite(Brick):
     @abstractmethod
     def sprite_destroyed(self):
         """
+        Behaviour when sprite is destroyed
         """
 
-    def display_on_screen(self) -> None: 
+    def display_on_screen(self) -> None:
+        """
+        Display
+        """
         if self.number_remaining_bumps > 0:
             super().display_on_screen()

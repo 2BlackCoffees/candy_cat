@@ -3,13 +3,13 @@ Handle collisions
 """
 from typing import Tuple
 #from pprint import pprint
-from typing import List, Set
+from typing import Set
 
 from domain.static_sprite import StaticSprite
 from domain.collision_handler import CollisionHandler
 from domain.static_sprite import Brick
 from domain.sprites import GameMovingSprite
-from domain.score import Score
+from domain.score_banner import Score
 from domain.game_task_handler import WinLostManagement
 
 class CollisionHandlerSprites(CollisionHandler):
@@ -33,7 +33,7 @@ class CollisionHandlerSprites(CollisionHandler):
         """
         Subscribe a new static sprite which needs to be analyzed against a collision
         """
-        self.save_static_sprite(sprite)
+        self.__save_sprite_for_collision(sprite)
 
         if sprite.bring_points():
             self.bricks_must_disappear.add(sprite)
@@ -43,18 +43,23 @@ class CollisionHandlerSprites(CollisionHandler):
         Subscribe a new sprite which needs to be analyzed against a collision
         """
         self.dynamic_sprites.add(sprite)
-        self.save_static_sprite(sprite)
+        self.__save_sprite_for_collision(sprite)
 
-    def save_static_sprite(self, sprite: StaticSprite):
+    def __save_sprite_for_collision(self, sprite: StaticSprite):
+        """
+        Dynamic sprites
+        """
         self.sprites[sprite] = {self.PERIMETER:           sprite.get_perimeter(),
                                 self.PERIMETER_OPTIMIZED: sprite.get_perimeter_optimized()}
 
-
     def unsubscribe(self, sprite: StaticSprite):
+        """
+        Dynamic sprites
+        """
         if sprite in self.sprites:
             del self.sprites[sprite]
         if sprite in self.dynamic_sprites:
-            del self.dynamic_sprites[sprite]
+            self.dynamic_sprites.remove(sprite)
         if sprite in self.bricks_must_disappear:
             self.bricks_must_disappear.remove(sprite)
             if len(self.bricks_must_disappear) == 0:
@@ -62,12 +67,16 @@ class CollisionHandlerSprites(CollisionHandler):
 
     def __get_moved_perimeter_to_position(self,pos_x: int, pos_y: int,
                                           perimeter: list) -> list({}):
+        """
+        Sprites define their perimeter
+        """
         return [{'x': pos_x + position['x'], 'y': pos_y + position['y']} \
                 for position in perimeter]
 
     def __get_perimeter(self, sprite: StaticSprite, optimized: bool, sprites: list) -> list({}):
         """
-        Get the proper perimeter
+        Get the proper perimeter: each sprite knows its perimeter.
+        This methods calculate the perimieter taking into account th position of the sprite.
         """
         (pos_x, pos_y) = sprite.get_position_for_collision_analysis()
         key = self.PERIMETER_OPTIMIZED if optimized else self.PERIMETER
@@ -151,4 +160,8 @@ class CollisionHandlerSprites(CollisionHandler):
             from_sprite.bumped(from_side_bumped)
 
     def add_score(self, add_score: int) -> None:
-        self.score.add_score(add_score)
+        """
+        This method is used by a sprite to inform the scor that points need to be added or removed
+        TODO: This method should be moved in a separate class as it is breaking the SRP principle
+        """
+        self.score.increase_score(add_score)
