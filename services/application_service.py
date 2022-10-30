@@ -15,7 +15,7 @@ def start():
     pygame.init()
     mixer.init()
     screen: pygame.Surface = pygame.display.set_mode((screen_width, screen_height),
-                                     pygame.HWSURFACE | pygame.DOUBLEBUF)# | pygame.FULLSCREEN)
+                                     pygame.HWSURFACE | pygame.DOUBLEBUF) # | pygame.FULLSCREEN)
     start_sound = pygame.mixer.Sound(Common.START_MUSIC)
     pygame.mixer.Sound.play(start_sound)
 
