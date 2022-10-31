@@ -3,7 +3,6 @@ Handle the score list: who are the top players
 """
 from abc import ABC, abstractmethod
 from typing import List, Tuple
-from pprint import pprint
 
 class ScoreSaver(ABC):
     """
@@ -58,20 +57,15 @@ class ScoreHandler:
                 new_score_list: List[Tuple[str, int]] = []
                 if add_index > 0:
                     new_score_list = self.score_list[0:add_index]
-                pprint(new_score_list)
                 new_score_list.append((user_name, score))
-                pprint(new_score_list)
                 new_score_list.extend(self.score_list[add_index:])
-                pprint(new_score_list)
                 self.score_list = new_score_list
-                pprint(self.score_list)
             else:
                 self.score_list.append((user_name, score))
 
         if len(self.score_list) > self.max_scores:
             self.score_list = self.score_list[0:10]
 
-        pprint(self.score_list)
         self.score_saver.save_scores(self.score_list)
 
     def get_score_list_formated(self) -> List[str]:

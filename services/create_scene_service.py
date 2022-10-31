@@ -58,10 +58,10 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
         self.bricks: List[StaticSprite] = None
         self.event_dispatcher: EventDispatcher = None
         self.collision_handler: CollisionHandler = None
-        self.current_score = 0
-        self.lost_game =  pygame.mixer.Sound(Common.YOU_LOST)
-        self.next_level =  pygame.mixer.Sound(Common.NEXT_LEVEL)
-        self.go_game_board =  pygame.mixer.Sound(Common.GO_GAME_BOARD)
+        self.current_score: int = 0
+        self.lost_game: pygame.mixer.Sound =  pygame.mixer.Sound(Common.YOU_LOST)
+        self.next_level: pygame.mixer.Sound =  pygame.mixer.Sound(Common.NEXT_LEVEL)
+        self.go_game_board: pygame.mixer.Sound =  pygame.mixer.Sound(Common.GO_GAME_BOARD)
 
         self.init_game()
         self.create_game()
@@ -147,7 +147,7 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
         """
         self.message = ["Well done :-)",
                         "Next one will be much harder :-)",
-                         'You have another {self.remaining_balls} ball(s)']
+                        f'You have another {self.remaining_balls} ball(s)']
         self.game_state = GameState.WAITING_PLAYER_READY_BEFORE_NEXT_LEVEL
         pygame.mixer.Sound.play(self.next_level)
 

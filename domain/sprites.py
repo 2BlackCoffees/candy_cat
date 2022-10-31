@@ -101,21 +101,15 @@ class Ball(GameMovingSprite):
     """
     This is the sprite representing the ball bumping
     """
-    horizontal: int = CollisionHandler.HORIZONTAL
-    vertical: int = CollisionHandler.VERTICAL
-    left: int = CollisionHandler.LEFT
-    right: int = CollisionHandler.RIGHT
-    top: int = CollisionHandler.TOP
-    bottom: int = CollisionHandler.BOTTOM
-    horizontal_collision: bool = False
-    vertical_collision: bool = False
-    win_lost_management: WinLostManagement = None
 
     def __init__(self, screen: pygame.Surface):
         super().__init__(screen)
+        self.horizontal_collision: bool = False
+        self.vertical_collision: bool = False
+        self.win_lost_management: WinLostManagement = None
         self.change_x: int = 5
         self.change_y: int = 5
-        self.sound_missed_ball =  pygame.mixer.Sound(Common.MISSED_BALL)
+        self.sound_missed_ball: pygame.mixer.Sound =  pygame.mixer.Sound(Common.MISSED_BALL)
 
     def subscribe(self, win_lost_management: WinLostManagement) -> None:
         """
@@ -228,7 +222,7 @@ class Player(UserControlledGameMovingSprite):
     """
     def __init__(self, screen: pygame.Surface):
         super().__init__(screen)
-        self.sound =  pygame.mixer.Sound(Common.BUMP_PLAYER)
+        self.sound: pygame.mixer.Sound =  pygame.mixer.Sound(Common.BUMP_PLAYER)
         self.next_position_x: int = 0
 
     def set_position(self, pos_x: int, pos_y: int) -> StaticSprite:

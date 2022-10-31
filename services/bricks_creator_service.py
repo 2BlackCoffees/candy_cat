@@ -31,11 +31,13 @@ class BricksCreatorService():
     """
     def __init__(self, from_height: int, screen: pygame.Surface, read_game: ReadGame,
                  collision_handler: CollisionHandler):
+        self.screen_width: int
+        self.screen_height: int
         self.screen_width, self.screen_height = screen.get_size()
-        self.from_height = from_height
-        self.screen = screen
-        self.collision_handler = collision_handler
-        self.brick_map = read_game.read_game()
+        self.from_height: int = from_height
+        self.screen: pygame.Surface = screen
+        self.collision_handler: CollisionHandler = collision_handler
+        self.brick_map: List[str] = read_game.read_game()
 
     def open_game(self, filename: str):
         """

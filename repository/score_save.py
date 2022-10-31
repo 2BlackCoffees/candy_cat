@@ -10,7 +10,7 @@ class FileScoreSaver(ScoreSaver):
     Handle scores
     """
     def __init__(self, file_name: str = 'wall_scores.txt'):
-        self.file_name = file_name
+        self.file_name: str = file_name
 
     def save_scores(self, score_list: List[Tuple[str, int]]):
         """

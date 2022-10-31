@@ -37,10 +37,12 @@ class InformationScreen(): # pylint: disable=too-few-public-methods
                  list_information_color: List[Tuple[str, Tuple[int, int, int]]] = None):
         super().__init__()
         pygame.font.init()
-        self.font:  pygame.font.Font = pygame.font.SysFont('Comic Sans MS', 30)
-        self.list_information_color = \
+        self.font: pygame.font.Font = pygame.font.SysFont('Comic Sans MS', 30)
+        self.list_information_color: List[Tuple[str, Tuple[int, int, int]]] = \
             list_information_color if list_information_color is not None else []
-        self.screen = screen
+        self.screen: pygame.Surface = screen
+        self.screen_width: int
+        self.screen_height: int
         self.screen_width, self.screen_height = pygame.display.get_surface().get_size()
 
     def print_information(self):
@@ -104,9 +106,9 @@ class GetName(InformationScreen, InputOnScreen):
             ("(Press enter when done):", Common.blue),
             ("", Common.green)
         ]
-        self.input_requested = True
+        self.input_requested: bool = True
         super().__init__(screen, list_information_color)
-        self.sound_key_pressed =  pygame.mixer.Sound(Common.KEY_PRESSED)
+        self.sound_key_pressed: pygame.mixer.Sound =  pygame.mixer.Sound(Common.KEY_PRESSED)
 
     def key_pressed(self, key:str) -> None:
         """

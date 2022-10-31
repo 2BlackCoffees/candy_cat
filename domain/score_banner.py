@@ -15,7 +15,7 @@ class Score(pygame.sprite.Sprite):
         pygame.font.init()
         self.font:  pygame.font.Font = pygame.font.SysFont('Comic Sans MS', 30)
         screen_width, screen_height = pygame.display.get_surface().get_size()
-        self.display = Display(screen, screen_width, screen_height)
+        self.display: Display = Display(screen, screen_width, screen_height)
         self.height = height
         self.score = score
         self.remaining_balls = remaining_balls

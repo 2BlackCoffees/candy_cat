@@ -7,12 +7,12 @@ class ReadGameFromFile(ReadGame): # pylint: disable=too-few-public-methods
     """
     Read from file system
     """
-    DIRECTORY = './'
-    SUFFIX = '.txt'
+    DIRECTORY: str = './'
+    SUFFIX: str = '.txt'
     def read_game(self):
         """
         Read the game
         """
-        filename = self.DIRECTORY + self.game_name + self.SUFFIX
+        filename: str = self.DIRECTORY + self.game_name + self.SUFFIX
         with open(filename, encoding="utf-8") as file:
             return file.readlines()

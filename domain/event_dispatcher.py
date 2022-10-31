@@ -19,7 +19,7 @@ class EventDispatcher():
         self.controlled_moving_sprites: List[GameMovingSprite] = []
         self.game_task_changer: GameTaskChanger = None
         self.input_on_screen: InputOnScreen = None
-        self.sound_start_ball =  pygame.mixer.Sound(Common.START_BALL)
+        self.sound_start_ball: pygame.mixer.Sound = pygame.mixer.Sound(Common.START_BALL)
 
     def subscribe(self, controlled_moving_sprite: GameMovingSprite) -> None:
         """

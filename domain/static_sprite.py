@@ -125,11 +125,11 @@ class Brick(StaticSprite):
     def __init__(self, screen: pygame.Surface, bring_point: bool, bump_sound: str):
         self.bring_point = bring_point
         super().__init__(screen)
-        self.bump_sound = pygame.mixer.Sound(bump_sound)
+        self.bump_sound: pygame.mixer.Sound = pygame.mixer.Sound(bump_sound)
 
     def play_bump(self):
         """
-        Ply bump sound
+        Play bump sound
         """
         pygame.mixer.Sound.play(self.bump_sound)
 
@@ -186,7 +186,7 @@ class DestroyableStaticSprite(Brick):
         self.display: Display = Display(screen, screen_width, screen_height)
         self.number_remaining_bumps: int = number_remaining_bumps
         self.destroyable_sprites_images: DestroyableStaticSpriteImages = destroyable_sprites_images
-        self.destroyed_sound = None
+        self.destroyed_sound: pygame.mixer.Sound = None
         if destroyed_sound is not None:
             self.destroyed_sound = pygame.mixer.Sound(destroyed_sound)
 
