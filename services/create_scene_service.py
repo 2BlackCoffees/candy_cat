@@ -112,7 +112,7 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
             self.collision_handler.subscribe_static(brick)
         self.__create_main_sprites()
 
-    def init_game(self):
+    def init_game(self) -> None:
         """
         Initialize a new game when the player lost
         """
@@ -120,7 +120,7 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
         self.current_score = 0
         self.game_index = 0
 
-    def inform_player_lost(self):
+    def inform_player_lost(self) -> None:
         """
         Behaviour when the player lost
         """
@@ -141,7 +141,7 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
                                 "your score is far too low!"]
                 self.game_state = GameState.WAITING_PLAYER_READY_BEFORE_GAME_RESTART
 
-    def inform_player_won(self):
+    def inform_player_won(self) -> None:
         """
         Behaviour when the player won
         """
@@ -151,7 +151,7 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
         self.game_state = GameState.WAITING_PLAYER_READY_BEFORE_NEXT_LEVEL
         pygame.mixer.Sound.play(self.next_level)
 
-    def next_task(self):
+    def next_task(self) -> None:
         """
         Handle the state machine of the game
         """
@@ -173,7 +173,7 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
             self.create_game()
             self.game_state = GameState.PLAYING
 
-    def update_game_scene(self):
+    def update_game_scene(self) -> None:
         """
         Visually update the scene of the game
         """

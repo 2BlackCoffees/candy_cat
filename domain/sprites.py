@@ -173,7 +173,7 @@ class BreakableBrick(DestroyableStaticSprite):
         self.collision_handler.add_score(5)
         super().bumped(from_side_bumped)
 
-    def sprite_destroyed(self):
+    def sprite_destroyed(self) -> None:
         """
         Destroyed? Remove more points
         """
@@ -210,7 +210,7 @@ class PoisonedBrick(DestroyableStaticSprite):
         self.collision_handler.add_score(-10)
         super().bumped(from_side_bumped)
 
-    def sprite_destroyed(self):
+    def sprite_destroyed(self) -> None:
         """
         Destroyed? Remove more points
         """

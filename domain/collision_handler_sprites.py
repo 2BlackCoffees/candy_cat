@@ -29,7 +29,7 @@ class CollisionHandlerSprites(CollisionHandler):
         self.bricks_must_disappear: Set[Brick] = set()
         self.win_lost_management: WinLostManagement = win_lost_management
 
-    def subscribe_static(self, sprite: Brick):
+    def subscribe_static(self, sprite: Brick) -> None:
         """
         Subscribe a new static sprite which needs to be analyzed against a collision
         """
@@ -38,21 +38,21 @@ class CollisionHandlerSprites(CollisionHandler):
         if sprite.bring_points():
             self.bricks_must_disappear.add(sprite)
 
-    def subscribe_moving(self, sprite: GameMovingSprite):
+    def subscribe_moving(self, sprite: GameMovingSprite) -> None:
         """
         Subscribe a new sprite which needs to be analyzed against a collision
         """
         self.dynamic_sprites.add(sprite)
         self.__save_sprite_for_collision(sprite)
 
-    def __save_sprite_for_collision(self, sprite: StaticSprite):
+    def __save_sprite_for_collision(self, sprite: StaticSprite) -> None:
         """
         Dynamic sprites
         """
         self.sprites[sprite] = {self.PERIMETER:           sprite.get_perimeter(),
                                 self.PERIMETER_OPTIMIZED: sprite.get_perimeter_optimized()}
 
-    def unsubscribe(self, sprite: StaticSprite):
+    def unsubscribe(self, sprite: StaticSprite) -> None:
         """
         Dynamic sprites
         """

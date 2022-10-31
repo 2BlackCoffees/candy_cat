@@ -26,7 +26,7 @@ class Score(pygame.sprite.Sprite):
         """
         self.score += added_score
 
-    def set_number_balls(self, remaining_balls: int):
+    def set_number_balls(self, remaining_balls: int) -> None:
         """
         We want to display the number of balls
         """
@@ -38,7 +38,7 @@ class Score(pygame.sprite.Sprite):
         """
         return self.score
 
-    def __get_score_images(self):
+    def __get_score_images(self) -> Tuple[pygame.Surface, pygame.Surface, pygame.Surface]:
         """
         Return the images to be displayed on the banner
         """
@@ -46,9 +46,9 @@ class Score(pygame.sprite.Sprite):
         if self.score < 0:
             color_score = Common.red
 
-        text_surface = self.font.render('Your score: ', False, Common.blue)
-        score_surface =  self.font.render(str(self.score), False, color_score)
-        remaining_balls_surface =  self.font.render('  -  Remaining balls: ' + \
+        text_surface: pygame.Surface = self.font.render('Your score: ', False, Common.blue)
+        score_surface: pygame.Surface =  self.font.render(str(self.score), False, color_score)
+        remaining_balls_surface: pygame.Surface =  self.font.render('  -  Remaining balls: ' + \
                                                     str(self.remaining_balls), \
                                                     False, Common.green)
         return text_surface, score_surface, remaining_balls_surface

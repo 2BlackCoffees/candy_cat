@@ -127,7 +127,7 @@ class Brick(StaticSprite):
         super().__init__(screen)
         self.bump_sound: pygame.mixer.Sound = pygame.mixer.Sound(bump_sound)
 
-    def play_bump(self):
+    def play_bump(self) -> None:
         """
         Play bump sound
         """
@@ -224,7 +224,7 @@ class DestroyableStaticSprite(Brick):
         return self
 
     @abstractmethod
-    def sprite_destroyed(self):
+    def sprite_destroyed(self) -> None:
         """
         Behaviour when sprite is destroyed
         """

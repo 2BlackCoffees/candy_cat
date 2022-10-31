@@ -9,7 +9,7 @@ class ScoreSaver(ABC):
     Abstract class enabling communication with higher level classes
     """
     @abstractmethod
-    def save_scores(self, score_list: List[Tuple[str, int]]):
+    def save_scores(self, score_list: List[Tuple[str, int]]) -> None:
         """
         Save the scores
         """

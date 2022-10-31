@@ -72,7 +72,7 @@ class EventDispatcher():
             else:
                 self.handle_events_for_game(event)
 
-    def handle_events_for_inputs(self, event: pygame.event.Event):
+    def handle_events_for_inputs(self, event: pygame.event.Event) -> None:
         """
         We handle here the characters typed when provideing user name
         """
@@ -84,7 +84,7 @@ class EventDispatcher():
             else:
                 self.input_on_screen.key_pressed(pygame.key.name(event.key))
 
-    def handle_events_for_game(self, event: pygame.event.Event):
+    def handle_events_for_game(self, event: pygame.event.Event) -> None:
         """
         Here we handle the control of the game
         """

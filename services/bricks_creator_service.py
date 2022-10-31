@@ -39,7 +39,7 @@ class BricksCreatorService():
         self.collision_handler: CollisionHandler = collision_handler
         self.brick_map: List[str] = read_game.read_game()
 
-    def open_game(self, filename: str):
+    def open_game(self, filename: str) -> None:
         """
         Read the game
         """
