@@ -2,11 +2,14 @@
 Event dispatcher
 """
 from typing import List
-from domain.sprites import GameMovingSprite
+from domain.sprites import UserControlledGameMovingSprite
 from domain.game_task_handler import GameTaskChanger
 from domain.information_screen import InputOnScreen
 from domain.common import Common
-import pygame
+from infrastructure.gui_library import Canvas
+from infrastructure.gui_library import SoundPlayer
+from infrastructure.gui_library import Constants
+from infrastructure.gui_library import Events
 
 class EventDispatcher():
     """
@@ -16,12 +19,13 @@ class EventDispatcher():
 
     def __init__(self):
         self.is_done_status: bool = False
-        self.controlled_moving_sprites: List[GameMovingSprite] = []
+        self.controlled_moving_sprites: List[UserControlledGameMovingSprite] = []
         self.game_task_changer: GameTaskChanger = None
         self.input_on_screen: InputOnScreen = None
-        self.sound_start_ball: pygame.mixer.Sound = pygame.mixer.Sound(Common.START_BALL)
+        self.sound_start_ball: SoundPlayer = SoundPlayer([Common.START_BALL])
+        self.event_handler: Events = Events()
 
-    def subscribe(self, controlled_moving_sprite: GameMovingSprite) -> None:
+    def subscribe(self, controlled_moving_sprite: UserControlledGameMovingSprite) -> None:
         """
         Attach a new sprite
         """
@@ -41,7 +45,7 @@ class EventDispatcher():
         """
         self.game_task_changer = start_stop_management
 
-    def unsubscribe(self, controlled_moving_sprite: GameMovingSprite) -> None:
+    def unsubscribe(self, controlled_moving_sprite: UserControlledGameMovingSprite) -> None:
         """
         Detach a sprite
         """
@@ -62,48 +66,47 @@ class EventDispatcher():
         """
         Handle the events
         """
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+        while (self.event_handler.has_more_events()):
+
+            if self.event_handler.wants_to_quit():
                 self.is_done_status = True
 
             if self.input_on_screen is not None and \
                self.input_on_screen.is_input_on_screen_requested():
-                self.handle_events_for_inputs(event)
+                self.handle_events_for_inputs()
             else:
-                self.handle_events_for_game(event)
+                self.handle_events_for_game()
 
-    def handle_events_for_inputs(self, event: pygame.event.Event) -> None:
+    def handle_events_for_inputs(self) -> None:
         """
         We handle here the characters typed when provideing user name
         """
-        if event.type == pygame.KEYDOWN:
-            if event.key in (pygame.K_ESCAPE, pygame.K_RETURN):
-                self.input_on_screen.set_input_on_screen_requested(False)
-                self.unsubscribe_input()
-                self.game_task_changer.next_task()
-            else:
-                self.input_on_screen.key_pressed(pygame.key.name(event.key))
+        if self.event_handler.key_down([Constants.ESCAPE, Constants.RETURN]):
+            self.input_on_screen.set_input_on_screen_requested(False)
+            self.unsubscribe_input()
+            self.game_task_changer.next_task()
+        elif self.event_handler.any_key_pressed():
+            self.input_on_screen.key_pressed(self.event_handler.key_pressed_name())
 
-    def handle_events_for_game(self, event: pygame.event.Event) -> None:
+    def handle_events_for_game(self) -> None:
         """
         Here we handle the control of the game
         """
-        if event.type == pygame.KEYDOWN:
-            if event.key in (pygame.K_ESCAPE, pygame.K_q):
-                self.is_done_status = True
+        if self.event_handler.key_down([Constants.ESCAPE, Constants.KEY_Q]):
+            self.is_done_status = True
 
             for controlled_moving_sprite in self.controlled_moving_sprites:
-                controlled_moving_sprite.start_direction(event.key)
+                controlled_moving_sprite.start_direction(self.event_handler.key_pressed())
 
-        if event.type == pygame.KEYUP:
+        if self.event_handler.any_key_release():
             for controlled_moving_sprite in self.controlled_moving_sprites:
-                controlled_moving_sprite.stop_direction(event.key)
+                controlled_moving_sprite.stop_direction(self.event_handler.key_pressed())
 
-        if event.type == pygame.MOUSEMOTION:
+        if self.event_handler.mouse_moved():
             for controlled_moving_sprite in self.controlled_moving_sprites:
-                controlled_moving_sprite.mouse_position_move(pygame.mouse.get_pos())
+                controlled_moving_sprite.mouse_position_move(self.event_handler.get_mouse_position())
 
-        if event.type == pygame.MOUSEBUTTONDOWN or\
-            event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            pygame.mixer.Sound.play(self.sound_start_ball)
+        if self.event_handler.mouse_button_down() or\
+            self.event_handler.key_down([Constants.SPACE]):
+            self.sound_start_ball.play()
             self.game_task_changer.next_task()

@@ -10,7 +10,6 @@ class Common:
     Define constants
     """
     GAME_NAME='wall_breaker/'
-    BLACK = (0, 0, 0)
     BALL_IMAGE_NAME = GAME_NAME + 'assets/images/ColorfulBall.png'
     PING_IMAGE_NAME = GAME_NAME + 'assets/images/BarPingPong.png'
     BRICK_IMAGE_NAME = GAME_NAME + 'assets/images/PsycheBrick.png'

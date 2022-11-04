@@ -4,7 +4,11 @@ This package takes care of display of a panel with anything written on it
 from abc import ABC, abstractmethod
 from typing import Tuple, List
 from domain.common import Common
-import pygame
+from infrastructure.gui_library import Canvas
+from infrastructure.gui_library import SpriteImage
+from infrastructure.gui_library import Font
+from infrastructure.gui_library import Constants
+from infrastructure.gui_library import SoundPlayer
 
 class InputOnScreen(ABC):
     """
@@ -33,28 +37,27 @@ class InformationScreen(): # pylint: disable=too-few-public-methods
     Concrete class to display information on the screen
     """
 
-    def __init__(self, screen: pygame.Surface,
+    def __init__(self, screen: Canvas,
                  list_information_color: List[Tuple[str, Tuple[int, int, int]]] = None):
         super().__init__()
-        pygame.font.init()
-        self.font: pygame.font.Font = pygame.font.SysFont('Comic Sans MS', 30)
+        self.font: Font = Font(screen, 30)
         self.list_information_color: List[Tuple[str, Tuple[int, int, int]]] = \
             list_information_color if list_information_color is not None else []
-        self.screen: pygame.Surface = screen
+        self.screen: Canvas = screen
         self.screen_width: int
         self.screen_height: int
-        self.screen_width, self.screen_height = pygame.display.get_surface().get_size()
+        self.screen_width, self.screen_height = screen.get_screen_size()
 
-    def print_information(self):
+    def print_information(self) -> None:
         """
         Print the panel with the list of strings
         """
-        list_text_surfaces: List[pygame.Surface] = []
+        list_text_surfaces: List[SpriteImage] = []
         max_width = -1
         all_heights = 0
         inter_line_space = 10
         for information, color in self.list_information_color:
-            text_surface: pygame.Surface = self.font.render(information, False, color)
+            text_surface: SpriteImage = self.font.render_font(information, color)
             list_text_surfaces.append(text_surface)
             if text_surface.get_width() > max_width:
                 max_width =  text_surface.get_width()
@@ -64,19 +67,19 @@ class InformationScreen(): # pylint: disable=too-few-public-methods
         top_pos: int = (self.screen_height - all_heights) // 2
 
         rect_diff_size: int = 40
-        rectangle: pygame.Surface = pygame.Surface(
-                           (max_width + rect_diff_size,
-                            all_heights + rect_diff_size),
-                            pygame.SRCALPHA)
-        rectangle.fill((255,255,255,128))
-        self.screen.blit(rectangle,
-                         (left_pos - rect_diff_size // 2,
-                         top_pos - rect_diff_size // 2))
+        self.screen.create_rectangle(\
+            max_width + rect_diff_size,
+            all_heights + rect_diff_size,
+            Constants.black, 128).display_on_screen_at_position(\
+                left_pos - rect_diff_size // 2,
+                top_pos - rect_diff_size // 2
+            )
+
         y_pos = top_pos
         for text_surface in list_text_surfaces:
-            self.screen.blit(text_surface,
-                                 ((self.screen_width - text_surface.get_width() ) // 2,
-                                 y_pos))
+            text_surface.display_on_screen_at_position(\
+                (self.screen_width - text_surface.get_width() ) // 2,\
+                y_pos)
             y_pos +=  text_surface.get_height() + inter_line_space
 
 class InformationEndGame(InformationScreen): # pylint: disable=too-few-public-methods
@@ -84,7 +87,7 @@ class InformationEndGame(InformationScreen): # pylint: disable=too-few-public-me
     This is a specialised InformationScreen to inform the user
     that the game ended
     """
-    def __init__(self, screen: pygame.Surface,
+    def __init__(self, screen: Canvas,
                  list_information: List[str]):
         if list_information is None:
             list_information = []
@@ -100,7 +103,7 @@ class GetName(InformationScreen, InputOnScreen):
     """
     With this class we gather the name of the user
     """
-    def __init__(self, screen: pygame.Surface):
+    def __init__(self, screen: Canvas):
         list_information_color: List[Tuple[str, Tuple[int, int, int]]] = [
             ("Enter your name:", Common.blue),
             ("(Press enter when done):", Common.blue),
@@ -108,7 +111,7 @@ class GetName(InformationScreen, InputOnScreen):
         ]
         self.input_requested: bool = True
         super().__init__(screen, list_information_color)
-        self.sound_key_pressed: pygame.mixer.Sound =  pygame.mixer.Sound(Common.KEY_PRESSED)
+        self.sound_key_pressed: SoundPlayer =  SoundPlayer([Common.KEY_PRESSED])
 
     def key_pressed(self, key:str) -> None:
         """
@@ -119,10 +122,10 @@ class GetName(InformationScreen, InputOnScreen):
         if key == 'backspace':
             if len(information) > 0:
                 information = information[:-1]
-                pygame.mixer.Sound.play(self.sound_key_pressed)
+                self.sound_key_pressed.play()
         elif len(key) == 1:
             information += key
-            pygame.mixer.Sound.play(self.sound_key_pressed)
+            self.sound_key_pressed.play()
         self.list_information_color[-1] = (information, color)
         self.print_information()
 
@@ -157,17 +160,17 @@ class AllScores(InformationScreen): # pylint: disable=too-few-public-methods
     """
     Specialised class to display all scores
     """
-    def __init__(self, screen: pygame.Surface,
+    def __init__(self, screen: Canvas,
                  list_information: List[str] = None):
         if list_information is None:
             list_information = []
         list_information_color: List[Tuple[str, Tuple[int, int, int]]] = []
         for index in range(min(10, len(list_information))):
-            color = Common.red
+            color = Constants.red
             if index > len(list_information) // 6:
-                color = Common.blue
+                color = Constants.blue
             if index > len(list_information) // 3:
-                color = Common.green
+                color = Constants.green
             list_information_color.append((list_information[index], color))
 
         list_information_color.append(("Press space or left click to continue!",

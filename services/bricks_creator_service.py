@@ -4,13 +4,13 @@ Create all bricks and their position as defined in the game stored on the file s
 from typing import List
 from abc import ABC, abstractmethod
 from domain.sprites import StaticSprite
+from domain.sprites import Brick
 from domain.sprites import BreakableBrick
 from domain.sprites import PoisonedBrick
 from domain.sprites import UnbreakableBrick
-from domain.static_sprite import DestroyableStaticSpriteImages
 from domain.collision_handler import CollisionHandler
 from domain.common import Common
-import pygame
+from infrastructure.gui_library import Canvas
 
 class ReadGame(ABC): # pylint: disable=too-few-public-methods
     """
@@ -29,13 +29,13 @@ class BricksCreatorService():
     """
     Create bricks
     """
-    def __init__(self, from_height: int, screen: pygame.Surface, read_game: ReadGame,
+    def __init__(self, from_height: int, screen: Canvas, read_game: ReadGame,
                  collision_handler: CollisionHandler):
         self.screen_width: int
         self.screen_height: int
-        self.screen_width, self.screen_height = screen.get_size()
+        self.screen_width, self.screen_height = screen.get_screen_size()
         self.from_height: int = from_height
-        self.screen: pygame.Surface = screen
+        self.screen: Canvas = screen
         self.collision_handler: CollisionHandler = collision_handler
         self.brick_map: List[str] = read_game.read_game()
 
@@ -58,12 +58,11 @@ class BricksCreatorService():
 
     def __create_breakable_brick(self, brick_width: int, brick_height: int, position: dict,
             number_bumper_before_vanishes: int,
-            destroyable_sprites_images: DestroyableStaticSpriteImages) -> None:
+            number_opacities: int) -> None:
         """
         Helper function to create breakable bricks
         """
-        return BreakableBrick(self.screen, number_bumper_before_vanishes,
-                     destroyable_sprites_images)\
+        return BreakableBrick(self.screen, number_bumper_before_vanishes, number_opacities)\
             .set_image(brick_width, brick_height, Common.BRICK_IMAGE_NAME)\
                 .set_position(position['x'], position['y'])\
                     .set_collision_handler(self.collision_handler)\
@@ -71,12 +70,12 @@ class BricksCreatorService():
 
     def __create_poisoned_brick(self, brick_width: int, brick_height: int, position: dict,
                                 number_bumper_before_vanishes: int,
-                                destroyable_sprites_images: DestroyableStaticSpriteImages) -> None:
+                                number_opacities: int) -> None:
         """
         Helper function to create poisonned bricks
         """
         return PoisonedBrick(self.screen,
-                    number_bumper_before_vanishes, destroyable_sprites_images)\
+                    number_bumper_before_vanishes, number_opacities)\
             .set_image(brick_width, brick_height, Common.POISONED_BRICK_IMAGE_NAME)\
                 .set_position(position['x'], position['y'])\
                     .set_collision_handler(self.collision_handler)\
@@ -122,29 +121,23 @@ class BricksCreatorService():
             index_y += 1
             index_x = 0
 
-        bricks = [ self.__create_unbreakable_brick(
-                    brick_width, brick_height, position)
-                      for position in unbreakable_brick_positions ]
-
-        poisoned_destroyable_sprites_images: DestroyableStaticSpriteImages = \
-            DestroyableStaticSpriteImages(Common.POISONED_BRICK_IMAGE_NAME,
-                                          poisoned_number_bumper_before_vanishes,
-                                          brick_width, brick_height)
-        destroyable_sprites_images: DestroyableStaticSpriteImages = \
-            DestroyableStaticSpriteImages(Common.BRICK_IMAGE_NAME,
-                                          breakable_number_bumper_before_vanishes,
-                                          brick_width, brick_height)
+        bricks: List[Brick] = []
+            
         bricks.extend([self.__create_breakable_brick(
                     brick_width, brick_height, position,
                     number_bumper_before_vanishes,
-                    destroyable_sprites_images)
+                    breakable_number_bumper_before_vanishes)
                       for position, number_bumper_before_vanishes in breakable_brick_positions])
+
+        bricks.extend([ self.__create_unbreakable_brick(
+                    brick_width, brick_height, position)
+                      for position in unbreakable_brick_positions ])
 
 
         bricks.extend([self.__create_poisoned_brick(
                     brick_width, brick_height, position,
                     number_bumper_before_vanishes,
-                    poisoned_destroyable_sprites_images)
+                    poisoned_number_bumper_before_vanishes)
                       for position, number_bumper_before_vanishes in poisoned_brick_positions])
 
         return bricks

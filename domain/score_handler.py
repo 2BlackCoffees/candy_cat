@@ -1,8 +1,8 @@
 """
 Handle the score list: who are the top players
 """
-from abc import ABC, abstractmethod
 from typing import List, Tuple
+from abc import ABC, abstractmethod
 
 class ScoreSaver(ABC):
     """
@@ -18,7 +18,6 @@ class ScoreSaver(ABC):
         """
         Load the scores
         """
-
 class ScoreHandler:
     """
     Concrete class displaying score and other stuff in the banner

@@ -21,8 +21,8 @@ from domain.score_handler import ScoreHandler
 from services.bricks_creator_service import BricksCreatorService
 from infrastructure.read_game_from_file import ReadGameFromFile
 from repository.score_save import FileScoreSaver
-import pygame
-
+from infrastructure.gui_library import SoundPlayer
+from infrastructure.gui_library import Canvas
 class GameState(Enum):
     """
     Various states belonging to the state machine
@@ -40,17 +40,17 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
     """
     def __init__(self,
                  game_list: List[str],
-                 screen: pygame.Surface):
+                 screen: Canvas):
         self.game_index:int = 0
         self.game_list: List[str] = game_list
-        self.screen: pygame.Surface = screen
+        self.screen: Canvas = screen
         self.message: List[str] =[]
         self.score_height: int = 80
         self.from_height: int = 50
         self.get_name: GetName = GetName(self.screen)
         self.game_state: GameState = GameState.WAITING_PLAYER_READY_BEFORE_LEVEL_REPLAY
-        self.file_score_saver: FileScoreSaver = FileScoreSaver('scores.txt')
-        self.score_handler: ScoreHandler = ScoreHandler(self.file_score_saver)
+        file_score_saver: FileScoreSaver = FileScoreSaver('scores.txt')
+        self.score_handler: ScoreHandler = ScoreHandler(file_score_saver)
         self.remaining_balls: int = 3
         self.player: Player = None
         self.ball: Ball = None
@@ -59,9 +59,10 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
         self.event_dispatcher: EventDispatcher = None
         self.collision_handler: CollisionHandler = None
         self.current_score: int = 0
-        self.lost_game: pygame.mixer.Sound =  pygame.mixer.Sound(Common.YOU_LOST)
-        self.next_level: pygame.mixer.Sound =  pygame.mixer.Sound(Common.NEXT_LEVEL)
-        self.go_game_board: pygame.mixer.Sound =  pygame.mixer.Sound(Common.GO_GAME_BOARD)
+        self.sound_player: SoundPlayer = SoundPlayer(
+            [Common.YOU_LOST,
+             Common.NEXT_LEVEL,
+             Common.GO_GAME_BOARD])
 
         self.init_game()
         self.create_game()
@@ -76,7 +77,7 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
         """
         Handle ball, player and event dispatch
         """
-        screen_width, screen_height = self.screen.get_size()
+        screen_width, screen_height = self.screen.get_screen_size()
 
         self.event_dispatcher = EventDispatcher()
         self.event_dispatcher.subscribe_next_task(self)
@@ -112,6 +113,7 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
             self.collision_handler.subscribe_static(brick)
         self.__create_main_sprites()
 
+
     def init_game(self) -> None:
         """
         Initialize a new game when the player lost
@@ -132,11 +134,11 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
             self.game_state = GameState.WAITING_PLAYER_READY_BEFORE_LEVEL_REPLAY
         else:
             if self.score_handler.is_wall_of_fames(self.score.get_score()):
-                pygame.mixer.Sound.play(self.go_game_board)
+                self.sound_player.play(Common.GO_GAME_BOARD)
                 self.get_name.clear_input()
                 self.game_state = GameState.ASKING_USER_NAME
             else:
-                pygame.mixer.Sound.play(self.lost_game)
+                self.sound_player.play(Common.YOU_LOST)
                 self.message = ["No wall of fame for this time ... ",
                                 "your score is far too low!"]
                 self.game_state = GameState.WAITING_PLAYER_READY_BEFORE_GAME_RESTART
@@ -149,7 +151,7 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
                         "Next one will be much harder :-)",
                         f'You have another {self.remaining_balls} ball(s)']
         self.game_state = GameState.WAITING_PLAYER_READY_BEFORE_NEXT_LEVEL
-        pygame.mixer.Sound.play(self.next_level)
+        self.sound_player.play(Common.NEXT_LEVEL)
 
     def next_task(self) -> None:
         """
@@ -186,7 +188,7 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
         self.event_dispatcher.process_event()
         self.player.move()
 
-        self.screen.fill(Common.BLACK)
+        self.screen.fill_color(Common.black)
         self.player.display_on_screen()
         self.ball.display_on_screen()
         self.score.display_on_screen()

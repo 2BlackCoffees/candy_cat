@@ -3,17 +3,20 @@ Handle static sprites
 """
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 from dataclasses import dataclass
 from domain.collision_handler import CollisionHandler
-import pygame
-
+from infrastructure.gui_library import Canvas
+from infrastructure.gui_library import SpriteImage
+from infrastructure.gui_library import SpriteImageOpaque
+from infrastructure.gui_library import Rect
+from infrastructure.gui_library import SoundPlayer
 @dataclass
 class Display:
     """
     This data class factors all display related variables
     """
-    screen: pygame.Surface = None
+    screen: Canvas = None
     screen_width: int = 0
     screen_height: int = 0
 
@@ -22,26 +25,27 @@ class Image:
     """
     This data class factors all images related variables
     """
-    image: pygame.Surface = None
+    image: SpriteImage = None
     width: int = 0
     height: int = 0
-    perimeter: list(dict) = None
-    rect: pygame.Rect = None
-    opac_images: List[pygame.Surface] = None
+    perimeter: List[Dict[str, int]] = None
+    rect: Rect = None
+    opaque_images: List[Image] = None
 
-
-class StaticSprite(pygame.sprite.Sprite, ABC):
+class StaticSprite(ABC):
     """
     Static sprites cannot move, moving sprites are handled by another class
     TODO: A build in the builder patter is needed
     """
-
-    def __init__(self, screen: pygame.Surface):
+    unique_id: int = 0
+    def __init__(self, screen: Canvas):
         self.collision_handler: CollisionHandler = None
         self.image: Image = None
         super().__init__()
-        screen_width, screen_height = pygame.display.get_surface().get_size()
+        screen_width, screen_height = screen.get_screen_size()
         self.display: Display = Display(screen, screen_width, screen_height)
+        self.my_index = StaticSprite.unique_id
+        StaticSprite.unique_id += 1
 
     def set_collision_handler(self, collision_handler: CollisionHandler) -> StaticSprite:
         """
@@ -54,30 +58,37 @@ class StaticSprite(pygame.sprite.Sprite, ABC):
         """
         Define position of the sprite
         """
-        if self.image is not None and self.image.rect is not None:
-            self.image.rect.x = pos_x - self.image.width // 2
-            self.image.rect.y = pos_y - self.image.height // 2
+        if self.image is not None and self.image.image is not None:
+            self.image.image.set_position(pos_x - self.image.width // 2,\
+                pos_y - self.image.height // 2)
         else:
             print("Error trying to set a position on an image "
                   "that does not exist yet! Set the image first!")
         return self
+
+    def get_unique_id(self) -> int:
+        return self.my_index
+
+    def load_image(self, width: int, height: int, image_path: str) -> StaticSprite:
+        return self.display.screen.load(image_path, width, height)
 
     def set_image(self, width: int, height: int,
                   image_path: str) -> StaticSprite:
         """
         Define the position of the sprite
         """
-        if self.image is not None and self.image.rect is not None:
-            self.image.rect.x += self.image.width // 2
-            self.image.rect.y += self.image.height // 2
+        if self.image is not None:
+            self.image.image.move_relative(
+                self.image.width // 2,
+                self.image.height // 2)
 
-        image = pygame.image.load(image_path).convert_alpha()
-        image = pygame.transform.scale(image, (width, height))
+        image_sprite: SpriteImage = self.load_image(width, height, image_path)
+
         perimeter = [{'x': 0, 'y': 0}, {'x': width, 'y': height}]
-        self.image = Image(image, width, height, perimeter,
-                           image.get_rect(), [])
+        self.image = Image(image_sprite, width, height, perimeter,
+                           image_sprite.get_rect(), [])
+        image_sprite.set_position(self.image.rect.x, self.image.rect.y)
 
-        self.set_position(self.image.rect.x, self.image.rect.y)
 
         return self
 
@@ -85,7 +96,7 @@ class StaticSprite(pygame.sprite.Sprite, ABC):
         """
         Paint the sprite on the screen
         """
-        self.display.screen.blit(self.image.image, (self.image.rect.x,self.image.rect.y))
+        self.image.image.display_on_screen()
 
     def get_perimeter(self) -> list({}):
         """
@@ -103,7 +114,7 @@ class StaticSprite(pygame.sprite.Sprite, ABC):
         """
         Get the position of the sprite
         """
-        return (self.image.rect.x, self.image.rect.y)
+        return (self.image.image.get_pos_x(), self.image.image.get_pos_y())
 
     def get_position_for_collision_analysis(self) -> Tuple[int, int]:
         """
@@ -122,16 +133,16 @@ class Brick(StaticSprite):
     """
     Default behaviour for a brick
     """
-    def __init__(self, screen: pygame.Surface, bring_point: bool, bump_sound: str):
+    def __init__(self, screen: Canvas, bring_point: bool, bump_sound: str):
         self.bring_point = bring_point
         super().__init__(screen)
-        self.bump_sound: pygame.mixer.Sound = pygame.mixer.Sound(bump_sound)
+        self.bump_sound: SoundPlayer = SoundPlayer([bump_sound])
 
     def play_bump(self) -> None:
         """
         Play bump sound
         """
-        pygame.mixer.Sound.play(self.bump_sound)
+        self.bump_sound.play()
 
     def bring_points(self) -> bool:
         """
@@ -139,56 +150,35 @@ class Brick(StaticSprite):
         """
         return self.bring_point
 
-class DestroyableStaticSpriteImages: # pylint: disable=too-few-public-methods
-    """
-    Destroyable classes automatically disappear when they were several times bumped
-    """
-    def __init__(self, base_image_path: str, number_opacities: int, width: int, height: int):
-        self.number_opacities: int = number_opacities + 2
-        self.base_image: pygame.Surface = pygame.image.load(base_image_path).convert_alpha()
-        self.base_image = pygame.transform.scale(self.base_image, (width, height))
-        self.opac_images: List[pygame.Surface] = []
-
-        self.__create_all_opacities()
-
-    def __create_all_opacities(self) -> None:
-        """
-        Breakable bricks change opacity when they get bumped.
-        All the opacities are created upfront to be sure the effect will be smooth
-        """
-        source = self.base_image
-
-        self.opac_images.clear()
-        for opacity in range(self.number_opacities):
-            new_image = source.copy()
-            new_image.fill((255, 255, 255,
-                            100 + opacity * 155 // self.number_opacities),
-                            None, pygame.BLEND_RGBA_MULT)
-            self.opac_images.append(new_image)
-        self.opac_images.append(source)
-
-    def get_all_images(self) -> List[pygame.Surface]:
-        """
-        Return all possible opacities
-        """
-        return self.opac_images
 
 class DestroyableStaticSprite(Brick):
     """
     Handle the behaviour of destroyable bricks
     """
-    def __init__(self, screen: pygame.Surface, number_remaining_bumps: int,
-                 destroyable_sprites_images: DestroyableStaticSpriteImages,
-                 bring_points: bool, bump_sound: str, destroyed_sound: str = None):
+    def __init__(self, screen: Canvas, number_remaining_bumps: int,
+                 number_opacities: int,
+                 bring_points: bool, bump_sound: str, destroyed_sound: str):
         super().__init__(screen, bring_points, bump_sound)
-        self.number_remaining_bumps:int = 1
-        screen_width, screen_height = pygame.display.get_surface().get_size()
+        screen_width, screen_height = screen.get_screen_size()
         self.display: Display = Display(screen, screen_width, screen_height)
         self.number_remaining_bumps: int = number_remaining_bumps
-        self.destroyable_sprites_images: DestroyableStaticSpriteImages = destroyable_sprites_images
-        self.destroyed_sound: pygame.mixer.Sound = None
-        if destroyed_sound is not None:
-            self.destroyed_sound = pygame.mixer.Sound(destroyed_sound)
+        self.number_opacities: int = number_opacities
+        self.destroyed_sound: SoundPlayer = SoundPlayer([destroyed_sound])
+
+    def set_image(self, width: int, height: int, image_path: str) -> DestroyableStaticSprite:
+        super().set_image(width, height, image_path)
+        self.sprite_image_opaque: SpriteImageOpaque = SpriteImageOpaque(\
+            self.image.image, self.display.screen, self.number_opacities, image_path)
+        self.sprite_image_opaque.select_image_index(self.number_remaining_bumps)
+        return self
+
+
+    def set_collision_handler(self, collision_handler: CollisionHandler) -> DestroyableStaticSprite:
+        """
+        Attach a collision handler
+        """
+        super().set_collision_handler(collision_handler)
+        return self
 
     def set_number_bumped(self, number_remaining_bumps: int) -> DestroyableStaticSprite:
         """
@@ -206,21 +196,14 @@ class DestroyableStaticSprite(Brick):
             if self.number_remaining_bumps == 0:
                 self.collision_handler.add_score(100)
                 self.collision_handler.unsubscribe(self)
-                if self.destroyed_sound is not None:
-                    pygame.mixer.Sound.play(self.destroyed_sound)
+                self.destroyed_sound.play()
             else:
-                self.image.image = self.image.opac_images[self.number_remaining_bumps]
+                self.sprite_image_opaque.select_image_index(self.number_remaining_bumps)
                 self.play_bump()
 
-    def set_image(self, width: int, height: int,
-                  image_path: str) -> StaticSprite:
-        """
-        Define the original image
-        """
-        super().set_image(width, height, image_path)
-        self.image.opac_images = \
-            self.destroyable_sprites_images.get_all_images()
-        self.image.image = self.image.opac_images[self.number_remaining_bumps]
+
+    def set_position(self, pos_x: int, pos_y: int) -> DestroyableStaticSprite:
+        super().set_position(pos_x, pos_y)
         return self
 
     @abstractmethod

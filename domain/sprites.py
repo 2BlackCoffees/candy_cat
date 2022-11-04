@@ -10,14 +10,14 @@ from domain.collision_handler import CollisionHandler
 from domain.static_sprite import Brick
 from domain.static_sprite import StaticSprite
 from domain.static_sprite import DestroyableStaticSprite
-from domain.static_sprite import DestroyableStaticSpriteImages
-import pygame
-
+from infrastructure.gui_library import Canvas
+from infrastructure.gui_library import Constants
+from infrastructure.gui_library import SoundPlayer
 class GameMovingSprite(StaticSprite, ABC):
     """
     Moving sprites should inherit me and provide their own functionality
     """
-    def __init__(self, screen: pygame.Surface):
+    def __init__(self, screen: Canvas):
         super().__init__(screen)
         self.change_x: int = 0
         self.change_y: int = 0
@@ -45,8 +45,8 @@ class GameMovingSprite(StaticSprite, ABC):
         """
         Analyze collision taking into account next position
         """
-        return (self.image.rect.x + self.change_x,
-                self.image.rect.y + self.change_y)
+        return (self.image.image.get_pos_x() + self.change_x,
+                self.image.image.get_pos_y() + self.change_y)
 
     def change_speed_factor(self, factor_x: int, factor_y: int) -> None:
         """
@@ -62,16 +62,14 @@ class GameMovingSprite(StaticSprite, ABC):
         """
         Default move
         """
-        self.image.rect.x += self.change_x
-        self.image.rect.y += self.change_y
+        self.image.image.move_relative(self.change_x, self.change_y)
 
     def move_from_bottom(self, position) -> None:
         """
         Coordinates are given from bottom
         """
         pos_x, pos_y = position
-        self.image.rect.x = pos_x
-        self.image.rect.y = pos_y - self.image.height
+        self.image.image.set_position(pos_x, pos_y - self.image.height)
 
 
 class UserControlledGameMovingSprite(GameMovingSprite, ABC):
@@ -102,14 +100,14 @@ class Ball(GameMovingSprite):
     This is the sprite representing the ball bumping
     """
 
-    def __init__(self, screen: pygame.Surface):
+    def __init__(self, screen: Canvas):
         super().__init__(screen)
         self.horizontal_collision: bool = False
         self.vertical_collision: bool = False
         self.win_lost_management: WinLostManagement = None
         self.change_x: int = 5
         self.change_y: int = 5
-        self.sound_missed_ball: pygame.mixer.Sound =  pygame.mixer.Sound(Common.MISSED_BALL)
+        self.sound_missed_ball: SoundPlayer = SoundPlayer([Common.MISSED_BALL])
 
     def subscribe(self, win_lost_management: WinLostManagement) -> None:
         """
@@ -135,18 +133,17 @@ class Ball(GameMovingSprite):
             self.collision_handler.inform_sprite_about_to_move()
 
         if self.vertical_collision or \
-           (self.image.rect.y < 1 or \
-            self.image.rect.y + self.image.height > self.display.screen_height):
+           (self.image.image.get_pos_y() < 1 or \
+            self.image.image.get_pos_y() + self.image.height > self.display.screen_height):
             self.change_y = -self.change_y
-            if self.image.rect.y + self.image.height > self.display.screen_height:
+            if self.image.image.get_pos_y() + self.image.height > self.display.screen_height:
                 self.win_lost_management.inform_player_lost()
-                pygame.mixer.Sound.play(self.sound_missed_ball)
+                self.sound_missed_ball.play()
 
         elif self.horizontal_collision or \
-           (self.image.rect.x < 1 or \
-            self.image.rect.x + self.image.width > self.display.screen_width):
+           (self.image.image.get_pos_x() < 1 or \
+            self.image.image.get_pos_x() + self.image.width > self.display.screen_width):
             self.change_x = -self.change_x
-
 
         self.horizontal_collision = False
         self.vertical_collision = False
@@ -158,10 +155,10 @@ class BreakableBrick(DestroyableStaticSprite):
     """
     Handles breakable bricks
     """
-    def __init__(self, screen: pygame.Surface, number_remaining_bumps: int,
-                 destroyable_sprites_images: DestroyableStaticSpriteImages):
+    def __init__(self, screen: Canvas, number_remaining_bumps: int,
+                number_opacities: int):
         super().__init__(screen, number_remaining_bumps, \
-                            destroyable_sprites_images, True, \
+                            number_opacities, True, \
                             Common.BUMP_BRICK, Common.DESTROYED_BRICK)
         self.max_bumped_value: int = 0
 
@@ -184,7 +181,7 @@ class UnbreakableBrick(Brick): # pylint: disable=too-few-public-methods
     """
     Handle unbreakable bricks
     """
-    def __init__(self, screen: pygame.Surface):
+    def __init__(self, screen: Canvas):
         super().__init__(screen, False, Common.BUMP_UNBREAKABLE_BRICK)
 
     def bumped(self, from_side_bumped: dict) -> None:
@@ -197,9 +194,9 @@ class PoisonedBrick(DestroyableStaticSprite):
     """
     Poison bricks remove pints by collisions and even more when they disappear
     """
-    def __init__(self, screen: pygame.Surface, number_remaining_bumps: int,
-                 destroyable_sprites_images: DestroyableStaticSpriteImages):
-        super().__init__(screen, number_remaining_bumps, destroyable_sprites_images,
+    def __init__(self, screen: Canvas, number_remaining_bumps: int,
+                 number_opacities: int):
+        super().__init__(screen, number_remaining_bumps, number_opacities,
                          False, Common.BUMP_POISON, Common.DESTROYED_POISON)
         self.max_bumped_value: int = 0
 
@@ -220,9 +217,9 @@ class Player(UserControlledGameMovingSprite):
     """
     This is the concrete user player class
     """
-    def __init__(self, screen: pygame.Surface):
+    def __init__(self, screen: Canvas):
         super().__init__(screen)
-        self.sound: pygame.mixer.Sound =  pygame.mixer.Sound(Common.BUMP_PLAYER)
+        self.sound: SoundPlayer = SoundPlayer([Common.BUMP_PLAYER])
         self.next_position_x: int = 0
 
     def set_position(self, pos_x: int, pos_y: int) -> StaticSprite:
@@ -238,37 +235,31 @@ class Player(UserControlledGameMovingSprite):
         Before we start, the ball should be placed
         right in the middle of the player
         """
-        return self.image.rect.x + self.image.width // 2, \
-               self.image.rect.y
+        return self.image.image.get_pos_x() + self.image.width // 2, \
+               self.image.image.get_pos_y()
 
     def start_direction(self, direction: int) -> None:
         """
         This starts movement with the keyboard
         """
-        if direction == pygame.K_LEFT:
+        if direction == Constants.LEFT_KEY:
             self.change_speed(-5, 0)
-        if direction == pygame.K_RIGHT:
+        if direction == Constants.RIGHT_KEY:
             self.change_speed(5, 0)
-        if direction == pygame.K_UP:
-            self.change_speed(0, -5)
-        if direction == pygame.K_DOWN:
-            self.change_speed(0, 5)
 
     def stop_direction(self, direction) -> None:
         """
         This stops movement with the keyboard
         """
-        if direction in (pygame.K_LEFT, pygame.K_RIGHT):
+        if direction in (Constants.LEFT_KEY, Constants.RIGHT_KEY):
             self.set_change_speed_x(0)
-        if direction in (pygame.K_UP, pygame.K_DOWN):
-            self.set_change_speed_y(0)
 
     def get_position_for_collision_analysis(self) -> Tuple[int, int]:
         """
         Position when colliding takes into account movement and direction
         This needs to be extended in other classes if required
         """
-        return (self.next_position_x, self.image.rect.y)
+        return (self.next_position_x, self.image.image.get_pos_y())
 
     def mouse_position_move(self, mouse_position) -> None:
         """
@@ -282,7 +273,8 @@ class Player(UserControlledGameMovingSprite):
             self.next_position_x = mouse_position_x -  self.image.width // 2
             if self.collision_handler is not None:
                 self.collision_handler.inform_sprite_about_to_move()
-            self.image.rect.x = self.next_position_x
+            self.image.image.set_position(\
+                self.next_position_x, self.image.image.get_pos_y())
         #if(mouse_position_y > self.height // 2 and
         # mouse_position_y < self.screen_height - self.height // 2):
         #    self.rect.y = mouse_position_y -  self.height // 2
@@ -291,7 +283,7 @@ class Player(UserControlledGameMovingSprite):
         """
         Ball bumped with the player
         """
-        pygame.mixer.Sound.play(self.sound)
+        self.sound.play()
         horizontal_collision, _ = \
             self.collision_handler.horizontal_collision_side_bumped(from_side_bumped)
         if horizontal_collision:
@@ -303,8 +295,8 @@ class Player(UserControlledGameMovingSprite):
         Move
         """
         super().change_speed_factor(1.10, 1.10)
-        if(self.image.rect.x + self.change_x < 1 or \
-           self.image.rect.x + self.image.width + self.change_x > \
+        if(self.image.image.get_pos_x() + self.change_x < 1 or \
+           self.image.image.get_pos_x() + self.image.width + self.change_x > \
            self.display.screen_width):
             self.change_x = 0
         #if(self.rect.y + self.change_y < 1 or

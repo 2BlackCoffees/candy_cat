@@ -4,17 +4,19 @@ Display score and number of remaing balls in the top banner
 from typing import Tuple
 from domain.static_sprite import Display
 from domain.common import Common
-import pygame
+from infrastructure.gui_library import Canvas
+from infrastructure.gui_library import Font
+from infrastructure.gui_library import SpriteImage
+from infrastructure.gui_library import Constants
 
-class Score(pygame.sprite.Sprite):
+class Score:
     """
     Handle the score banner
     """
-    def __init__(self, screen: pygame.Surface, height: int, score: int, remaining_balls: int):
+    def __init__(self, screen: Canvas, height: int, score: int, remaining_balls: int):
         super().__init__()
-        pygame.font.init()
-        self.font:  pygame.font.Font = pygame.font.SysFont('Comic Sans MS', 30)
-        screen_width, screen_height = pygame.display.get_surface().get_size()
+        self.font: Font = Font(screen, 30)
+        screen_width, screen_height = screen.get_screen_size()
         self.display: Display = Display(screen, screen_width, screen_height)
         self.height = height
         self.score = score
@@ -38,7 +40,7 @@ class Score(pygame.sprite.Sprite):
         """
         return self.score
 
-    def __get_score_images(self) -> Tuple[pygame.Surface, pygame.Surface, pygame.Surface]:
+    def __get_score_images(self) -> Tuple[SpriteImage, SpriteImage]:
         """
         Return the images to be displayed on the banner
         """
@@ -46,20 +48,20 @@ class Score(pygame.sprite.Sprite):
         if self.score < 0:
             color_score = Common.red
 
-        text_surface: pygame.Surface = self.font.render('Your score: ', False, Common.blue)
-        score_surface: pygame.Surface =  self.font.render(str(self.score), False, color_score)
-        remaining_balls_surface: pygame.Surface =  self.font.render('  -  Remaining balls: ' + \
-                                                    str(self.remaining_balls), \
-                                                    False, Common.green)
+        text_surface: SpriteImage = self.font.render_font('Your score: ', Constants.blue)
+        score_surface: SpriteImage =  self.font.render_font(str(self.score), color_score)
+        remaining_balls_surface: SpriteImage = \
+            self.font.render_font('  -  Remaining balls: ' + \
+                str(self.remaining_balls), Constants.green)
         return text_surface, score_surface, remaining_balls_surface
 
     def display_on_screen(self) -> None:
         """
         Display images on the banner
         """
-        text_surface: pygame.Surface = None
-        score_surface: pygame.Surface = None
-        remaining_balls_surface: pygame.Surface = None
+        text_surface: SpriteImage = None
+        score_surface: SpriteImage = None
+        remaining_balls_surface: SpriteImage = None
 
         text_surface, score_surface, remaining_balls_surface = self.__get_score_images()
         whole_width: int = text_surface.get_width() + score_surface.get_width() + \
@@ -71,6 +73,6 @@ class Score(pygame.sprite.Sprite):
                                           score_surface.get_height(), \
                                           remaining_balls_surface.get_height()))
 
-        self.display.screen.blit(text_surface, (left_pos_text, top_pos))
-        self.display.screen.blit(score_surface, (left_pos_score, top_pos))
-        self.display.screen.blit(remaining_balls_surface, (left_pos_remaining_balls, top_pos))
+        text_surface.display_on_screen_at_position(left_pos_text, top_pos)
+        score_surface.display_on_screen_at_position(left_pos_score, top_pos)
+        remaining_balls_surface.display_on_screen_at_position(left_pos_remaining_balls, top_pos)
