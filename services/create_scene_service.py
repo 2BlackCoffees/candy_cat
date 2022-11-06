@@ -3,7 +3,6 @@
 Create scene and handle the state machine of the game
 """
 from typing import List
-from enum import Enum
 from domain.static_sprite import StaticSprite
 from domain.sprites import Ball
 from domain.sprites import Player
@@ -19,23 +18,13 @@ from domain.information_screen import InformationEndGame
 from domain.information_screen import GetName
 from domain.score_handler import ScoreHandler
 from services.bricks_creator_service import BricksCreatorService
+from services.game_state import GameState
 from infrastructure.read_game_from_file import ReadGameFromFile
 from repository.score_save import FileScoreSaver
 from infrastructure.gui_library import SoundPlayer
 from infrastructure.gui_library import Canvas
 from services.game_state import GameState
 from students.exercises import Exercises
-class GameState(Enum):
-    """
-    Various states belonging to the state machine
-    """
-    WAITING_PLAYER_READY_BEFORE_LEVEL_REPLAY = 1
-    WAITING_PLAYER_READY_BEFORE_GAME_RESTART = 2
-    WAITING_PLAYER_READY_BEFORE_NEXT_LEVEL = 3
-    PLAYING = 4
-    ASKING_USER_NAME = 5
-    SHOWING_SCORE = 6
-
 class CreateSceneService(WinLostManagement, GameTaskChanger):
     """
     Create the visual part of the game

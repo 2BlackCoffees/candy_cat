@@ -2,10 +2,10 @@ UUUUUUUUUUUUUUUUUUUUUUU
 U   RRR STUVWXYZ  ABCDU
 U    UU   UUUU    UU  U
 U                     U
-U 2111 23456 12345  1 U
-U 2  1 2      6  6  2 U
-U 2111 252    2  6  3 U
-U 21   2      3  6  4 U
-U 2 1  2      4  6  5 U
-U 2  2 23456 15286  6 U
+U 6666 66666 66666  6 U
+U 5  5 5      5  5  5 U
+U 4444 444    4  4  4 U
+U 33   3      3  3  3 U
+U 2 2  2      2  2  2 U
+U 1  1 11111 11111  1 U
 U  UUUUUU   UUUUUUU   U
