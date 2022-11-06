@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Tuple, List, Dict
 from dataclasses import dataclass
 from domain.collision_handler import CollisionHandler
+from domain.base_sprite import BaseSprite
 from infrastructure.gui_library import Canvas
 from infrastructure.gui_library import SpriteImage
 from infrastructure.gui_library import SpriteImageOpaque
@@ -32,20 +33,18 @@ class Image:
     rect: Rect = None
     opaque_images: List[Image] = None
 
-class StaticSprite(ABC):
+class StaticSprite(BaseSprite):
     """
     Static sprites cannot move, moving sprites are handled by another class
     TODO: A build in the builder patter is needed
     """
-    unique_id: int = 0
     def __init__(self, screen: Canvas):
         self.collision_handler: CollisionHandler = None
         self.image: Image = None
         super().__init__()
         screen_width, screen_height = screen.get_screen_size()
         self.display: Display = Display(screen, screen_width, screen_height)
-        self.my_index = StaticSprite.unique_id
-        StaticSprite.unique_id += 1
+        self.my_index: str = str(hex(id(self)))
 
     def set_collision_handler(self, collision_handler: CollisionHandler) -> StaticSprite:
         """
@@ -66,7 +65,7 @@ class StaticSprite(ABC):
                   "that does not exist yet! Set the image first!")
         return self
 
-    def get_unique_id(self) -> int:
+    def get_unique_id(self) -> str:
         return self.my_index
 
     def load_image(self, width: int, height: int, image_path: str) -> StaticSprite:
@@ -84,7 +83,7 @@ class StaticSprite(ABC):
 
         image_sprite: SpriteImage = self.load_image(width, height, image_path)
 
-        perimeter = [{'x': 0, 'y': 0}, {'x': width, 'y': height}]
+        perimeter: List[Dict[str, int]] = [{'x': 0, 'y': 0}, {'x': width, 'y': height}]
         self.image = Image(image_sprite, width, height, perimeter,
                            image_sprite.get_rect(), [])
         image_sprite.set_position(self.image.rect.x, self.image.rect.y)
@@ -98,13 +97,13 @@ class StaticSprite(ABC):
         """
         self.image.image.display_on_screen()
 
-    def get_perimeter(self) -> list({}):
+    def get_perimeter(self) -> List[Dict[str, int]]:
         """
         Get the perimeter of the sprite (Currently only as rectanle)
         """
         return self.image.perimeter
 
-    def get_perimeter_optimized(self) -> list({}):
+    def get_perimeter_optimized(self) -> List[Dict[str, int]]:
         """
         Get the surrounding rectangle for optimization
         """
@@ -124,7 +123,7 @@ class StaticSprite(ABC):
         return self.get_position()
 
     @abstractmethod
-    def bumped(self, from_side_bumped: dict) -> None:
+    def bumped(self, from_side_bumped: Dict[str, int]) -> None:
         """
         Inform that this sprite bumbed or was bumped
         """
@@ -187,7 +186,7 @@ class DestroyableStaticSprite(Brick):
         self.number_remaining_bumps = number_remaining_bumps
         return self
 
-    def bumped(self, from_side_bumped: dict) -> None:
+    def bumped(self, from_side_bumped: Dict[str, int]) -> None:
         """
         Handle bump
         """

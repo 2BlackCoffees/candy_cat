@@ -1,6 +1,8 @@
 """
 Create all bricks and their position as defined in the game stored on the file system
 """
+from typing import Tuple
+from typing import Dict
 from typing import List
 from abc import ABC, abstractmethod
 from domain.sprites import StaticSprite
@@ -47,7 +49,7 @@ class BricksCreatorService():
             self.brick_map = file.readlines()
 
     def __create_unbreakable_brick(self, brick_width: int,
-                                   brick_height: int, position: dict) -> None:
+                                   brick_height: int, position: Dict[str, int]) -> None:
         """
         Helper function to create unbreakable bricks
         """
@@ -56,7 +58,7 @@ class BricksCreatorService():
                 .set_position(position['x'], position['y'])\
                     .set_collision_handler(self.collision_handler)
 
-    def __create_breakable_brick(self, brick_width: int, brick_height: int, position: dict,
+    def __create_breakable_brick(self, brick_width: int, brick_height: int, position: Dict[str, int],
             number_bumper_before_vanishes: int,
             number_opacities: int) -> None:
         """
@@ -68,7 +70,7 @@ class BricksCreatorService():
                     .set_collision_handler(self.collision_handler)\
                         .set_number_bumped(number_bumper_before_vanishes)
 
-    def __create_poisoned_brick(self, brick_width: int, brick_height: int, position: dict,
+    def __create_poisoned_brick(self, brick_width: int, brick_height: int, position: Dict[str, int],
                                 number_bumper_before_vanishes: int,
                                 number_opacities: int) -> None:
         """
@@ -91,9 +93,9 @@ class BricksCreatorService():
         index_x: int = 0
         index_y: int = 0
         bricks: List[StaticSprite] = []
-        breakable_brick_positions: list = []
-        unbreakable_brick_positions: list = []
-        poisoned_brick_positions: list = []
+        breakable_brick_positions: List[Tuple[Dict[str, int], int]] = []
+        unbreakable_brick_positions: List[Dict[str, int]] = []
+        poisoned_brick_positions: List[Tuple[Dict[str, int], int]] = []
         poisoned_number_bumper_before_vanishes: int = 0
         breakable_number_bumper_before_vanishes: int = 0
 

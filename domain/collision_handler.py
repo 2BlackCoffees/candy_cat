@@ -3,6 +3,8 @@ This module handles the collision
 """
 from abc import ABC, abstractmethod
 from typing import Tuple
+from typing import Dict
+from domain.base_sprite import BaseSprite
 #from pprint import pprint
 class CollisionHandler(ABC):
     """
@@ -22,14 +24,14 @@ class CollisionHandler(ABC):
         """
 
     @abstractmethod
-    def horizontal_collision_side_bumped(self, from_side_bumped: dict) -> Tuple[bool, int]:
+    def horizontal_collision_side_bumped(self, from_side_bumped: Dict[str, int]) -> Tuple[bool, int]:
         """
         horizontal_collision will return a bool specifying if a
         horizontal collision happened and the int represents its intensity
         """
 
     @abstractmethod
-    def vertical_collision_side_bumped(self, from_side_bumped: dict) -> Tuple[bool, int]:
+    def vertical_collision_side_bumped(self, from_side_bumped: Dict[str, int]) -> Tuple[bool, int]:
         """
         vertical_collision will return a bool specifying if a
         vertical_collision collision happened and the int represents its intensity
@@ -40,6 +42,13 @@ class CollisionHandler(ABC):
         """
         When a sprite is about to move he should inform
         the collision handler with this method
+        """
+
+    @abstractmethod
+    def check_for_collision(self, from_sprite: BaseSprite) -> Dict[str, int]:
+        """
+        When a sprite is about to move it should verify its position 
+        against other sprites
         """
 
     @abstractmethod

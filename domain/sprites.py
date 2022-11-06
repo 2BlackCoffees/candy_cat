@@ -4,9 +4,9 @@ Handle all sprites
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Tuple
+from typing import Dict
 from domain.common import Common
 from domain.game_task_handler import WinLostManagement
-from domain.collision_handler import CollisionHandler
 from domain.static_sprite import Brick
 from domain.static_sprite import StaticSprite
 from domain.static_sprite import DestroyableStaticSprite
@@ -115,7 +115,7 @@ class Ball(GameMovingSprite):
         """
         self.win_lost_management = win_lost_management
 
-    def bumped(self, from_side_bumped: dict) -> None:
+    def bumped(self, from_side_bumped: Dict[str, int]) -> None:
         """
         Inform that ball was bumped
         """
@@ -129,10 +129,18 @@ class Ball(GameMovingSprite):
         """
         Move ball
         """
+        from_side_bumped: Dict[str, int] = None
+        horizontal_collision: bool = False
+        vertical_collision: bool = False
         if self.collision_handler is not None:
-            self.collision_handler.inform_sprite_about_to_move()
+            from_side_bumped = self.collision_handler.check_for_collision(self)
+            if from_side_bumped is not None:
+                horizontal_collision, _ = \
+                    self.collision_handler.horizontal_collision_side_bumped(from_side_bumped)
+                vertical_collision, _ = \
+                    self.collision_handler.vertical_collision_side_bumped(from_side_bumped)
 
-        if self.vertical_collision or \
+        if vertical_collision or \
            (self.image.image.get_pos_y() < 1 or \
             self.image.image.get_pos_y() + self.image.height > self.display.screen_height):
             self.change_y = -self.change_y
@@ -140,13 +148,10 @@ class Ball(GameMovingSprite):
                 self.win_lost_management.inform_player_lost()
                 self.sound_missed_ball.play()
 
-        elif self.horizontal_collision or \
+        elif horizontal_collision or \
            (self.image.image.get_pos_x() < 1 or \
             self.image.image.get_pos_x() + self.image.width > self.display.screen_width):
             self.change_x = -self.change_x
-
-        self.horizontal_collision = False
-        self.vertical_collision = False
 
         self.change_speed_factor(1.05, 1.05)
         super().move()
@@ -163,7 +168,7 @@ class BreakableBrick(DestroyableStaticSprite):
         self.max_bumped_value: int = 0
 
 
-    def bumped(self, from_side_bumped: dict) -> None:
+    def bumped(self, from_side_bumped: Dict[str, int]) -> None:
         """
         Override bumped behaviour
         """
@@ -184,7 +189,7 @@ class UnbreakableBrick(Brick): # pylint: disable=too-few-public-methods
     def __init__(self, screen: Canvas):
         super().__init__(screen, False, Common.BUMP_UNBREAKABLE_BRICK)
 
-    def bumped(self, from_side_bumped: dict) -> None:
+    def bumped(self, from_side_bumped: Dict[str, int]) -> None:
         """
         Override bumped behaviour
         """
@@ -200,7 +205,7 @@ class PoisonedBrick(DestroyableStaticSprite):
                          False, Common.BUMP_POISON, Common.DESTROYED_POISON)
         self.max_bumped_value: int = 0
 
-    def bumped(self, from_side_bumped: dict) -> None:
+    def bumped(self, from_side_bumped: Dict[str, int]) -> None:
         """
         Bumped? Remove points
         """
@@ -279,7 +284,7 @@ class Player(UserControlledGameMovingSprite):
         # mouse_position_y < self.screen_height - self.height // 2):
         #    self.rect.y = mouse_position_y -  self.height // 2
 
-    def bumped(self, from_side_bumped: dict) -> None:
+    def bumped(self, from_side_bumped: Dict[str, int]) -> None:
         """
         Ball bumped with the player
         """
