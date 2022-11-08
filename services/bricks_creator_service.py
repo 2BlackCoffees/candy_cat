@@ -20,6 +20,8 @@ class ReadGame(ABC): # pylint: disable=too-few-public-methods
     """
     def __init__(self, game_name: str):
         self.game_name: str = game_name
+        self.smallest_brick_side: int = -1
+
     @abstractmethod
     def read_game(self) -> List[str]:
         """
@@ -90,6 +92,7 @@ class BricksCreatorService():
         height: int = self.screen_height - self.from_height
         brick_width: int = self.screen_width / (len(self.brick_map[0]) - 1)
         brick_height: int = 3 * height / (4 * len(self.brick_map))
+        self.smallest_brick_side = min(brick_width, brick_height)
         index_x: int = 0
         index_y: int = 0
         bricks: List[StaticSprite] = []
@@ -143,3 +146,6 @@ class BricksCreatorService():
                       for position, number_bumper_before_vanishes in poisoned_brick_positions])
 
         return bricks
+
+    def get_smallest_brick_size(self) -> int:
+        return self.smallest_brick_side

@@ -14,8 +14,8 @@ def start():
     screen: Canvas = Canvas('Candy Cat', screen_width, screen_height, Common.START_MUSIC)
 
     create_scene_service: CreateSceneService = CreateSceneService(
-        [Common.GAME_NAME + 'assets/levels/game1',
-        Common.GAME_NAME + 'assets/levels/game2',
+        [Common.GAME_NAME + 'assets/levels/game2',
+        Common.GAME_NAME + 'assets/levels/game1',
         Common.GAME_NAME + 'assets/levels/game3'],screen)
 
 

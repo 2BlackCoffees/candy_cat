@@ -21,6 +21,16 @@ class GameMovingSprite(StaticSprite, ABC):
         super().__init__(screen)
         self.change_x: int = 0
         self.change_y: int = 0
+        self.highest_increment = 100
+
+    def __limit_speed(self) -> None:
+        self.change_x = min(self.highest_increment, self.change_x)
+        self.change_y = min(self.highest_increment, self.change_y)
+
+    def set_max_increment(self, highest_increment: int) -> GameMovingSprite:
+        self.highest_increment = highest_increment
+        self.__limit_speed()
+        return self
 
     def change_speed(self, horizontal_speed: int, vertical_speed: int) -> None:
         """
@@ -28,6 +38,7 @@ class GameMovingSprite(StaticSprite, ABC):
         """
         self.change_x += horizontal_speed
         self.change_y += vertical_speed
+        self.__limit_speed()
 
     def set_change_speed_x(self, horizontal_speed: int) -> None:
         """
@@ -108,6 +119,11 @@ class Ball(GameMovingSprite):
         self.change_x: int = 5
         self.change_y: int = 5
         self.sound_missed_ball: SoundPlayer = SoundPlayer([Common.MISSED_BALL])
+        self.highest_ball_increment: int = max(self.change_x, self.change_y) * 2
+
+    def set_max_increment(self, highest_ball_increment: int) -> Ball:
+        super().set_max_increment(highest_ball_increment)
+        return self
 
     def subscribe(self, win_lost_management: WinLostManagement) -> None:
         """

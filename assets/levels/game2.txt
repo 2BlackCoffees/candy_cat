@@ -1,11 +1,14 @@
-UUUUUUUUUUUUUUUUUUUUUUU
-U   RRR STUVWXYZ  ABCDU
-U    UU   UUUU    UU  U
-U                     U
-U 2111 23456 12345  1 U
-U 2  1 2      6  6  2 U
-U 2111 252    2  6  3 U
-U 21   2      3  6  4 U
-U 2 1  2      4  6  5 U
-U 2  2 23456 15286  6 U
-U  UUUUUU   UUUUUUU   U
+UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
+U 11111 1     11111 1   1 11111 U
+U 3    QQ     3   3 3   3  3  3 U
+U 4   RSTU    4   4 4   4  4  4 U
+U 5    QQ     5   5 5   5  5  5 U
+U 7 QR  7     7   7 7   7  7  7 U
+U 8QQR8 88888 88888 88888 88888 U
+U   TUV                         U
+U 11111 11111 11111 11111 1   1 U
+U 3   3 3     3   2 3     3   3 U
+U 44444 4444  44444 QQR   44444 U
+U 55    5     5   5STUVW  5   5 U
+U 7  7  7     7   7 QQ    7   7 U
+U 8   8 88888 8   8 88888 8   8 U
