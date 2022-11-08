@@ -9,7 +9,7 @@ class Common:
     """
     Define constants
     """
-    GAME_NAME='wall_breaker/'
+    GAME_NAME='candy_cat/'
     BALL_IMAGE_NAME = GAME_NAME + 'assets/images/ColorfulBall.png'
     PING_IMAGE_NAME = GAME_NAME + 'assets/images/BarPingPong.png'
     BRICK_IMAGE_NAME = GAME_NAME + 'assets/images/PsycheBrick.png'

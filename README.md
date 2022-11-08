@@ -7,7 +7,7 @@ Then:
 * `python3 -m pip install -U pygame --user`
 * Clone this repository.
 * Switch to the branch students for students exercises.
-* The program can be started as follows: `python3 wall_breaker`
+* The program can be started as follows: `python3 candy_cat`
 * Exercises to fill are described in the respository students.
 * Once all exercises are finished, bonus exercises are the following:
 
