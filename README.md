@@ -6,7 +6,7 @@ Then:
 
 * `python3 -m pip install -U pygame --user`
 * Clone this repository.
-* The program can be started as follows: `python3 wall_breaker`
+* The program can be started as follows: `python3 candy_cat`
 * Following are the tasks to be done, please make sure each and every task is done following software best practices:
 
     1. Assuming you take over this project without any addition documentation and all people from the original team left the company, how would you go forward to:
