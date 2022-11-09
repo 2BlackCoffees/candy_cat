@@ -77,9 +77,7 @@ class StaticSprite(BaseSprite):
         Define the position of the sprite
         """
         if self.image is not None:
-            self.image.image.move_relative(
-                self.image.width // 2,
-                self.image.height // 2)
+            del self.image
 
         image_sprite: SpriteImage = self.load_image(width, height, image_path)
 

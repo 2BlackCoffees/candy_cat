@@ -1,4 +1,4 @@
-# Wall Breaker
+# Candy Cat
 
 To run this game please make sure you have python3 and pip3 installed.
 

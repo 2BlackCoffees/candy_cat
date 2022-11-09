@@ -64,7 +64,7 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
         """
         return self.event_dispatcher.is_done()
 
-    def __create_main_sprites(self) -> None:
+    def __create_main_sprites(self, highest_ball_increment: int) -> None:
         """
         Handle ball, player and event dispatch
         """
@@ -81,6 +81,7 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
         self.event_dispatcher.subscribe(self.player)
 
         self.ball = Ball(self.screen)\
+            .set_max_increment(highest_ball_increment)\
             .set_image(10, 10, Common.BALL_IMAGE_NAME)\
                 .set_position(screen_width // 2, 4 * screen_height // 5)\
                     .set_collision_handler(self.collision_handler)
@@ -103,7 +104,9 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
         self.bricks = bricks_creator_service.create_bricks()
         for brick in self.bricks:
             self.collision_handler.subscribe_static(brick)
-        self.__create_main_sprites()
+        self.__create_main_sprites(\
+            max(bricks_creator_service.get_smallest_brick_size() // 15,\
+                1))
 
 
     def init_game(self) -> None:
