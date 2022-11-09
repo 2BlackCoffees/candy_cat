@@ -87,10 +87,11 @@ class SpriteImage:
 
 
 class SpriteImageOpaque(SpriteImage):
-    opaque_images: Dict[str, List[SpriteImage]] = dict()
+    
 
     def __init__(self, image_key: SpriteImage, screen: BasicCanvas, number_opacities: int, image_path: str):
         super().__init__(image_key.image, screen, image_path)
+        self.opaque_images: Dict[str, List[SpriteImage]] = dict()
         self.image_key: SpriteImage = image_key
         self.screen: BasicCanvas = screen
         self.rect: Rect = self.get_rect()
@@ -102,27 +103,27 @@ class SpriteImageOpaque(SpriteImage):
         Breakable bricks change opacity when they get bumped.
         All the opacities are created upfront to be sure the effect will be smooth
         """
-        if self.image_path in SpriteImageOpaque.opaque_images:
+        if self.image_path in self.opaque_images:
             return
 
-        SpriteImageOpaque.opaque_images[self.image_path] = []#[self.image]
+        self.opaque_images[self.image_path] = []#[self.image]
         for opacity in range(self.number_opacities):
             new_image = self.image_key.image.copy()
             new_image.fill((255, 255, 255,
                             100 + opacity * 155 // self.number_opacities),
                             None, pygame.BLEND_RGBA_MULT)
-            SpriteImageOpaque.opaque_images[self.image_path].append(\
+            self.opaque_images[self.image_path].append(\
                 SpriteImage(new_image, self.screen, self.image_path))
-        SpriteImageOpaque.opaque_images[self.image_path].append(self)
+        self.opaque_images[self.image_path].append(self)
 
     def select_image_index(self, index:int) -> None:
-        max_images: int = len(SpriteImageOpaque.opaque_images[self.image_path])
+        max_images: int = len(self.opaque_images[self.image_path])
         if index >= 0 and index < max_images:
-            self.image_key.set_new_image(SpriteImageOpaque.opaque_images[self.image_path][index])
+            self.image_key.set_new_image(self.opaque_images[self.image_path][index])
 
         else:
             print(f'ERROR: Using index {index} whose value must be between 0 and {max_images}')
-            
+    
 
 class SoundPlayer:
     def __init__(self, path_to_sounds: List[str]):
@@ -226,6 +227,7 @@ class Canvas(BasicCanvas):
     def __load_image(self, image_path: str, width: int, height:int) -> pygame.Surface:
         image = pygame.image.load(image_path).convert_alpha()
         image = pygame.transform.scale(image, (width, height))
+
         return image
 
     def load(self, image_path: str, width: int, height:int) -> SpriteImage:
