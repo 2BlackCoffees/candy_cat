@@ -4,6 +4,24 @@ from services.game_state import GameState
 class Exercises:
 
     @staticmethod
+    def create_board(character: int) -> Tuple[int, int]:
+        """
+        Character represents the caharcer we read in a file describing the 
+        board we want to display.
+        If the character is ' ' then it is blank and you can return: (0, 0)
+        If the character is 'U' then it is an unbreakable brick and you can return (1, 0)
+        If the character is between '0' and '9' which means it is a digit then it is a breakable $ brick and you should return:
+        (2, the ordinal value of characer - ordinal value of '0')
+        The ordinal value is computed with the function ord().
+        If the character is greater than 'P' then it is a breakable skull and you should return:
+        (3, the ordinal value of characer - ordinal value of 'P' + 1)
+        """
+        if character == 'U': return (1, 0)
+        if character >= '1' and character <= '9': return (3, ord(character) - ord('0'))
+        if character >= 'P' and character <= 'Z': return (2, ord(character) - ord('P') + 1)
+        return (0, 0) 
+        
+    @staticmethod
     def init_game_values() -> Tuple[int, int, int]:
         """
         When the user lost or the game starts, we need to define 
