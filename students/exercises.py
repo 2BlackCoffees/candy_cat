@@ -16,9 +16,6 @@ class Exercises:
         If the character is greater than 'P' then it is a breakable skull and you should return:
         (3, the ordinal value of characer - ordinal value of 'P' + 1)
         """
-        if character == 'U': return (1, 0)
-        if character >= '1' and character <= '9': return (3, ord(character) - ord('0'))
-        if character >= 'P' and character <= 'Z': return (2, ord(character) - ord('P') + 1)
         return (0, 0) 
         
     @staticmethod
