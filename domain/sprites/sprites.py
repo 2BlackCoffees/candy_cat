@@ -13,6 +13,7 @@ from domain.sprites.base_classes.static_sprite import DestroyableStaticSprite
 from infrastructure.gui_library import Canvas
 from infrastructure.gui_library import Constants
 from infrastructure.gui_library import SoundPlayer
+from students.exercises import Exercises
 class GameMovingSprite(StaticSprite, ABC):
     """
     Moving sprites should inherit me and provide their own functionality
@@ -155,19 +156,26 @@ class Ball(GameMovingSprite):
                     self.collision_handler.horizontal_collision_side_bumped(from_side_bumped)
                 vertical_collision, _ = \
                     self.collision_handler.vertical_collision_side_bumped(from_side_bumped)
+        
 
-        if vertical_collision or \
-           (self.image.image.get_pos_y() < 1 or \
-            self.image.image.get_pos_y() + self.image.height > self.display.screen_height):
-            self.change_y = -self.change_y
+        # if vertical_collision or \
+        #    (self.image.image.get_pos_y() < 1 or \
+        #     self.image.image.get_pos_y() + self.image.height > self.display.screen_height):
+        if Exercises.is_vertical_collision_or_screen_vertical_boudary_reached(\
+            vertical_collision, self.image.image.get_pos_y(),
+            self.image.height, self.display.screen_height
+        ):
+            self.change_y = Exercises.get_opposite_vertical_movement_direction(self.change_y)
+
             if self.image.image.get_pos_y() + self.image.height > self.display.screen_height:
                 self.win_lost_management.inform_player_lost()
                 self.sound_missed_ball.play()
 
-        elif horizontal_collision or \
-           (self.image.image.get_pos_x() < 1 or \
-            self.image.image.get_pos_x() + self.image.width > self.display.screen_width):
-            self.change_x = -self.change_x
+        elif Exercises.is_horizontal_collision_or_screen_horizontal_boudary_reached(
+            horizontal_collision, self.image.image.get_pos_x(),
+            self.image.width, self.display.screen_width
+        ):
+            self.change_x = Exercises.get_opposite_horizontal_movement_direction(self.change_x)
 
         self.change_speed_factor(1.05, 1.05)
         super().move()

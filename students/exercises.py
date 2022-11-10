@@ -17,6 +17,65 @@ class Exercises:
         return (number_balls, current_score, game_index)
 
     @staticmethod
+    def get_initial_state() -> GameState:
+        """
+        This is the state the game will start with, you will need that later on
+        """
+        return GameState.WAITING_PLAYER_READY_BEFORE_LEVEL_REPLAY
+
+    @staticmethod
+    def get_maximum_sprite_movement(smallest_brick_side_size: int):
+        """
+        This game will work properly only if the movement defined by the number of sprite 
+        is either equal to 
+        -> smallest_brick_side_size divided by 15 or 
+        -> 1 if  smallest_brick_side_size divided by 15 is less than 1
+        Try to play with different values like 
+        -> smallest_brick_side_size * 3 to see what happens
+        """
+        return max(smallest_brick_side_size, 1)
+
+    @staticmethod
+    def get_opposite_horizontal_movement_direction(
+        horizontal_movement: int
+    ) -> bool:
+        """
+        horizontal_movement specifies the number of pixels the ball is 
+        moving horizontally.
+        When this function is called the program expects that the 
+        opposite value of horizontal_movement is returned.
+        """
+        return -horizontal_movement
+
+    @staticmethod
+    def get_opposite_vertical_movement_direction(
+        vertical_movement: int
+    ) -> bool:
+        """
+        vertical_movement specifies the number of pixels the ball is 
+        moving vertically.
+        When this function is called the program expects that the 
+        opposite value of vertical_movement is returned.
+        """
+        return -vertical_movement
+
+
+    @staticmethod
+    def failed_message(remaining_balls):
+        """ 
+        Here you should return a list of 3 strings:
+        First string:
+         You beginner, you lost :-)
+        Second string:
+          You have another ??? ball(s)
+        ??? must be replaced with the value of remaining_balls
+
+        A list is created as follows: ['Hello', 'World']
+        """
+        return ["You beginner, you lost :-)",
+                            f'You have another {remaining_balls} ball(s)']
+
+    @staticmethod
     def new_number_balls_after_a_ball_was_missed(
           current_number_balls: int) -> int:
         """
@@ -74,6 +133,7 @@ class Exercises:
         elif game_state == GameState.WAITING_PLAYER_READY_BEFORE_NEXT_LEVEL:
             game_state = GameState.PLAYING
         return game_state
+
     @staticmethod
     def get_next_state_when_lost(remaining_balls: int, 
                                  user_is_elected_to_wall_of_fame: bool) -> GameState:
@@ -99,12 +159,39 @@ class Exercises:
         return game_state
 
     @staticmethod
-    def get_initial_state() -> GameState:
+    def is_vertical_collision_or_screen_vertical_boudary_reached(
+        vertical_collision: bool, 
+        ball_position_vertical: int, 
+        ball_height: int, 
+        screen_height: int
+    ) -> bool:
         """
-        This is the state the game will start with, you will need that later on
+        We need to check whether a vertical collision happened,
+        you can use the boolean variable vertical_collision for this.
+        Vertical screen collision means that the vertical position of the ball 
+        is either less than 1 or bigger than screen_height - ball_height
         """
-        return GameState.WAITING_PLAYER_READY_BEFORE_LEVEL_REPLAY
+        return vertical_collision or \
+            ball_position_vertical < 1 or \
+            ball_position_vertical > screen_height - ball_height
 
+    @staticmethod
+    def is_horizontal_collision_or_screen_horizontal_boudary_reached(
+        horizontal_collision: bool, 
+        ball_position_horizontal: int, 
+        ball_width: int, 
+        screen_width: int
+    ) -> bool:
+        """
+        We need to check whether a horizontal collision happened,
+        you can use the boolean variable horizontal_collision for this.
+        Horizontal screen collision means that the horizontal position of the ball 
+        is either less than 1 or bigger than screen_width - ball_width
+        """
+        return horizontal_collision or \
+            ball_position_horizontal < 1 or \
+            ball_position_horizontal > screen_width - ball_width
+    
     @staticmethod
     def get_sorted_new_score_list(user_name: str, score: int, 
                                   score_list: List[Tuple[str, int]], 

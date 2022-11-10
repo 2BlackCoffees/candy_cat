@@ -105,8 +105,8 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
         for brick in self.bricks:
             self.collision_handler.subscribe_static(brick)
         self.__create_main_sprites(\
-            max(bricks_creator_service.get_smallest_brick_size() // 15,\
-                1))
+            Exercises.get_maximum_sprite_movement(\
+                bricks_creator_service.get_smallest_brick_size()))
 
 
     def init_game(self) -> None:
@@ -124,8 +124,7 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
         self.score.set_number_balls(self.remaining_balls)
         user_is_elected_to_wall_of_fame = False
         if self.remaining_balls > 0:
-            self.message = ["You beginner, you lost :-)",
-                            f'You have another {self.remaining_balls} ball(s)']
+            self.message = Exercises.failed_message(self.remaining_balls)
         else:
             if self.score_handler.is_wall_of_fames(self.score.get_score()):
                 self.sound_player.play(Common.GO_GAME_BOARD)
