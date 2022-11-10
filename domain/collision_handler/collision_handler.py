@@ -4,7 +4,7 @@ This module handles the collision
 from abc import ABC, abstractmethod
 from typing import Tuple
 from typing import Dict
-from domain.base_sprite import BaseSprite
+from domain.sprites.base_classes.base_sprite import BaseSprite
 #from pprint import pprint
 class CollisionHandler(ABC):
     """

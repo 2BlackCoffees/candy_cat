@@ -6,11 +6,11 @@ from typing import List
 from typing import Dict
 from typing import Set
 
-from domain.static_sprite import StaticSprite
-from domain.collision_handler import CollisionHandler
-from domain.static_sprite import Brick
-from domain.sprites import GameMovingSprite
-from domain.score_banner import Score
+from domain.sprites.base_classes.static_sprite import StaticSprite
+from domain.collision_handler.collision_handler import CollisionHandler
+from domain.sprites.base_classes.static_sprite import Brick
+from domain.sprites.sprites import GameMovingSprite
+from domain.user_panel_interface.score_banner import Score
 from domain.game_task_handler import WinLostManagement
 
 class CollisionHandlerSprites(CollisionHandler):

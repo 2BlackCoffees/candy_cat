@@ -5,8 +5,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Tuple, List, Dict
 from dataclasses import dataclass
-from domain.collision_handler import CollisionHandler
-from domain.base_sprite import BaseSprite
+from domain.collision_handler.collision_handler import CollisionHandler
+from domain.sprites.base_classes.base_sprite import BaseSprite
 from infrastructure.gui_library import Canvas
 from infrastructure.gui_library import SpriteImage
 from infrastructure.gui_library import SpriteImageOpaque

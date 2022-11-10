@@ -29,3 +29,4 @@ Then:
         * The racket should be able to shoot rockets and destroy the skull bricks. Rockets should destroy unbreakable walls but when a dollar brick is touched then many points should be lost.
         * A multi player game could be analyzed.
 
+https://github.com/2BlackCoffees/candy_cat/blob/main/CandyCat.mp4

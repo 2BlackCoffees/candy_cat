@@ -2,7 +2,7 @@
 Display score and number of remaing balls in the top banner
 """
 from typing import Tuple
-from domain.static_sprite import Display
+from domain.sprites.base_classes.static_sprite import Display
 from domain.common import Common
 from infrastructure.gui_library import Canvas
 from infrastructure.gui_library import Font

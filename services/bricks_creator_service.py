@@ -5,12 +5,12 @@ from typing import Tuple
 from typing import Dict
 from typing import List
 from abc import ABC, abstractmethod
-from domain.sprites import StaticSprite
-from domain.sprites import Brick
-from domain.sprites import BreakableBrick
-from domain.sprites import PoisonedBrick
-from domain.sprites import UnbreakableBrick
-from domain.collision_handler import CollisionHandler
+from domain.sprites.sprites import StaticSprite
+from domain.sprites.sprites import Brick
+from domain.sprites.sprites import BreakableBrick
+from domain.sprites.sprites import PoisonedBrick
+from domain.sprites.sprites import UnbreakableBrick
+from domain.collision_handler.collision_handler import CollisionHandler
 from domain.common import Common
 from infrastructure.gui_library import Canvas
 

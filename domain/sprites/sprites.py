@@ -7,9 +7,9 @@ from typing import Tuple
 from typing import Dict
 from domain.common import Common
 from domain.game_task_handler import WinLostManagement
-from domain.static_sprite import Brick
-from domain.static_sprite import StaticSprite
-from domain.static_sprite import DestroyableStaticSprite
+from domain.sprites.base_classes.static_sprite import Brick
+from domain.sprites.base_classes.static_sprite import StaticSprite
+from domain.sprites.base_classes.static_sprite import DestroyableStaticSprite
 from infrastructure.gui_library import Canvas
 from infrastructure.gui_library import Constants
 from infrastructure.gui_library import SoundPlayer

@@ -2,7 +2,7 @@
 Repository to access scores (save / load)
 """
 from typing import List, Tuple
-from domain.score_handler import ScoreSaver
+from domain.user_panel_interface.score_handler import ScoreSaver
 import os.path
 
 class FileScoreSaver(ScoreSaver):
