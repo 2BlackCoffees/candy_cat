@@ -13,6 +13,7 @@ from domain.sprites.sprites import UnbreakableBrick
 from domain.collision_handler.collision_handler import CollisionHandler
 from domain.common import Common
 from infrastructure.gui_library import Canvas
+from students.exercises import Exercises
 
 class ReadGame(ABC): # pylint: disable=too-few-public-methods
     """
@@ -103,21 +104,22 @@ class BricksCreatorService():
         breakable_number_bumper_before_vanishes: int = 0
 
         for row in self.brick_map:
-            for element in row:
-                if element != ' ':
+            for elt in row:
+                element, breakable = Exercises.create_board(elt)
+                if element != 0:
                     position = {'x':index_x * brick_width + brick_width // 2,
                                 'y':index_y * brick_height + brick_height // 2 + self.from_height}
-                    if element == 'U':
+                    if element == 1:
                         unbreakable_brick_positions.append(position)
 
-                    elif element[0] > 'P':
-                        number_bumper_before_vanishes: int = ord(element[0]) - ord('P')
+                    elif element == 2:
+                        number_bumper_before_vanishes: int = breakable
                         poisoned_brick_positions.append((position, number_bumper_before_vanishes))
                         poisoned_number_bumper_before_vanishes = \
                           max(poisoned_number_bumper_before_vanishes,
                               number_bumper_before_vanishes)
-                    elif element.isdigit():
-                        number_bumper_before_vanishes: int = int(element)
+                    elif element == 3:
+                        number_bumper_before_vanishes: int = breakable
                         breakable_brick_positions.append((position, number_bumper_before_vanishes))
                         breakable_number_bumper_before_vanishes = \
                           max(breakable_number_bumper_before_vanishes,
