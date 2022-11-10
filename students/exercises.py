@@ -11,7 +11,7 @@ class Exercises:
         * the initial score
         * which game we want the user starts with
         """
-        number_balls: int = 3
+        number_balls: int = 1
         current_score: int = 0
         game_index: int = 0
         return (number_balls, current_score, game_index)
@@ -33,7 +33,7 @@ class Exercises:
         Try to play with different values like 
         -> smallest_brick_side_size * 3 to see what happens
         """
-        return max(smallest_brick_side_size, 1)
+        return 0
 
     @staticmethod
     def get_opposite_horizontal_movement_direction(
@@ -45,7 +45,37 @@ class Exercises:
         When this function is called the program expects that the 
         opposite value of horizontal_movement is returned.
         """
-        return -horizontal_movement
+        return 0
+
+    @staticmethod
+    def is_vertical_collision_or_screen_vertical_boudary_reached(
+        vertical_collision: bool, 
+        ball_position_vertical: int, 
+        ball_height: int, 
+        screen_height: int
+    ) -> bool:
+        """
+        We need to check whether a vertical collision happened,
+        you can use the boolean variable vertical_collision for this.
+        Vertical screen collision means that the vertical position of the ball 
+        is either less than 1 or bigger than screen_height - ball_height
+        """
+        return False
+
+    @staticmethod
+    def is_horizontal_collision_or_screen_horizontal_boudary_reached(
+        horizontal_collision: bool, 
+        ball_position_horizontal: int, 
+        ball_width: int, 
+        screen_width: int
+    ) -> bool:
+        """
+        We need to check whether a horizontal collision happened,
+        you can use the boolean variable horizontal_collision for this.
+        Horizontal screen collision means that the horizontal position of the ball 
+        is either less than 1 or bigger than screen_width - ball_width
+        """
+        return False
 
     @staticmethod
     def get_opposite_vertical_movement_direction(
@@ -57,7 +87,7 @@ class Exercises:
         When this function is called the program expects that the 
         opposite value of vertical_movement is returned.
         """
-        return -vertical_movement
+        return 0
 
 
     @staticmethod
@@ -72,8 +102,7 @@ class Exercises:
 
         A list is created as follows: ['Hello', 'World']
         """
-        return ["You beginner, you lost :-)",
-                            f'You have another {remaining_balls} ball(s)']
+        return [""]
 
     @staticmethod
     def new_number_balls_after_a_ball_was_missed(
@@ -82,7 +111,7 @@ class Exercises:
         A ball was missed by the player so 
         we need to tell the game how many remaining balls there are...
         """
-        return current_number_balls - 1
+        return 0
 
     @staticmethod
     def restart_from_first_scene_after_last_scene(
@@ -93,10 +122,7 @@ class Exercises:
         if is is below number_of_scenes
         Otherwise return 0
         """
-        if current_scene_number >= number_of_scenes:
-            return 0
-        else:
-            return current_scene_number
+        return 0
     @staticmethod
     def return_game_name(
             index_of_list:int, 
@@ -107,8 +133,6 @@ class Exercises:
         Bonus: Return the first element 
         if the index is bigger than the size of the list
         """
-        if index_of_list < len(list_of_games):
-            return list_of_games[index_of_list]
         return list_of_games[0]
     @staticmethod
     def get_next_state(game_state: GameState) -> GameState:
@@ -123,16 +147,7 @@ class Exercises:
         GameState.WAITING_PLAYER_READY_BEFORE_GAME_RESTART -> GameState.PLAYING
         GameState.WAITING_PLAYER_READY_BEFORE_NEXT_LEVEL -> GameState.PLAYING
         """
-        if game_state == GameState.ASKING_USER_NAME:
-            game_state = GameState.SHOWING_SCORE
-        elif game_state in [ GameState.SHOWING_SCORE,
-                                  GameState.WAITING_PLAYER_READY_BEFORE_GAME_RESTART ]:
-            game_state = GameState.PLAYING
-        elif game_state == GameState.WAITING_PLAYER_READY_BEFORE_LEVEL_REPLAY:
-            game_state = GameState.PLAYING
-        elif game_state == GameState.WAITING_PLAYER_READY_BEFORE_NEXT_LEVEL:
-            game_state = GameState.PLAYING
-        return game_state
+        return GameState.PLAYING
 
     @staticmethod
     def get_next_state_when_lost(remaining_balls: int, 
@@ -149,48 +164,9 @@ class Exercises:
           * otherwise 
             -> go to state GameState.WAITING_PLAYER_READY_BEFORE_GAME_RESTART
         """
-        if remaining_balls > 0:
-            game_state = GameState.WAITING_PLAYER_READY_BEFORE_LEVEL_REPLAY
-        else:
-            if user_is_elected_to_wall_of_fame:
-                game_state = GameState.ASKING_USER_NAME
-            else:
-                game_state = GameState.WAITING_PLAYER_READY_BEFORE_GAME_RESTART
-        return game_state
+        return GameState.ASKING_USER_NAME
 
-    @staticmethod
-    def is_vertical_collision_or_screen_vertical_boudary_reached(
-        vertical_collision: bool, 
-        ball_position_vertical: int, 
-        ball_height: int, 
-        screen_height: int
-    ) -> bool:
-        """
-        We need to check whether a vertical collision happened,
-        you can use the boolean variable vertical_collision for this.
-        Vertical screen collision means that the vertical position of the ball 
-        is either less than 1 or bigger than screen_height - ball_height
-        """
-        return vertical_collision or \
-            ball_position_vertical < 1 or \
-            ball_position_vertical > screen_height - ball_height
 
-    @staticmethod
-    def is_horizontal_collision_or_screen_horizontal_boudary_reached(
-        horizontal_collision: bool, 
-        ball_position_horizontal: int, 
-        ball_width: int, 
-        screen_width: int
-    ) -> bool:
-        """
-        We need to check whether a horizontal collision happened,
-        you can use the boolean variable horizontal_collision for this.
-        Horizontal screen collision means that the horizontal position of the ball 
-        is either less than 1 or bigger than screen_width - ball_width
-        """
-        return horizontal_collision or \
-            ball_position_horizontal < 1 or \
-            ball_position_horizontal > screen_width - ball_width
     
     @staticmethod
     def get_sorted_new_score_list(user_name: str, score: int, 
@@ -214,24 +190,4 @@ class Exercises:
           d. We want only 10 scores in the variable score_list
         
         """
-        if len(score_list) == 0:
-            score_list.append((user_name, score))
-        else:
-            add_index = len(score_list)
-            for index in range(0, len(score_list)):
-                _, cur_score = score_list[index]
-                if score > cur_score:
-                    add_index = index
-                    break
-            if add_index < len(score_list):
-                new_score_list: List[Tuple[str, int]] = []
-                if add_index > 0:
-                    new_score_list = score_list[0:add_index]
-                new_score_list.append((user_name, score))
-                new_score_list.extend(score_list[add_index:])
-                score_list = new_score_list
-            else:
-                score_list.append((user_name, score))
-
-        if len(score_list) > max_scores:
-            score_list = score_list[0:10]
+        pass # pass means nothing to do ...
