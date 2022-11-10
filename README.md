@@ -23,3 +23,4 @@ Then:
         * Each tme a brick is destroyed an anmiation should be played (each brick should have its specific animation).
         * The racket should be able to shoot rockets and destroy the skull bricks. Rockets should destroy unbreakable walls but when a dollar brick is touched then many points should be reduced.
 
+https://github.com/2BlackCoffees/candy_cat/blob/main/CandyCat.mp4

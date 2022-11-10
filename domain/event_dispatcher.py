@@ -2,9 +2,9 @@
 Event dispatcher
 """
 from typing import List
-from domain.sprites import UserControlledGameMovingSprite
+from domain.sprites.sprites import UserControlledGameMovingSprite
 from domain.game_task_handler import GameTaskChanger
-from domain.information_screen import InputOnScreen
+from domain.user_panel_interface.information_screen import InputOnScreen
 from domain.common import Common
 from infrastructure.gui_library import Canvas
 from infrastructure.gui_library import SoundPlayer
