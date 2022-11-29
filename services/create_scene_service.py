@@ -95,9 +95,9 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
         if self.game_index >= len(self.game_list):
             self.game_index = 0
         game_name = self.game_list[self.game_index]
-        self.score = Score(self.screen, self.score_height, self.current_score, self.remaining_balls)
-        self.collision_handler = CollisionHandlerSprites(self.score, self)
-        bricks_creator_service = BricksCreatorService(
+        self.score: Score = Score(self.screen, self.score_height, self.current_score, self.remaining_balls)
+        self.collision_handler: CollisionHandlerSprites = CollisionHandlerSprites(self.score, self)
+        bricks_creator_service: BricksCreatorService = BricksCreatorService(
             self.from_height, self.screen,
                 ReadGameFromFile(game_name), self.collision_handler)
         self.bricks = bricks_creator_service.create_bricks()
