@@ -65,7 +65,7 @@ class GameMovingSprite(StaticSprite, ABC):
         Speed factor should not be greater than half of the size of the sprite
         otherwise movement will not be fluid anymore
         """
-        if abs(self.change_x) < self.image.width / 4:
+        if abs(self.change_x) < self.image.width / 2:
             self.change_x *= factor_x
         if abs(self.change_y) < self.image.height / 2:
             self.change_y *= factor_y
