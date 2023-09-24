@@ -1,14 +1,15 @@
 UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU
-U 11111 1     11111 1   1 11111 U
-U 3    QQ     3   3 3   3  3  3 U
-U 4   RSTU    4   4 4   4  4  4 U
-U 5    QQ     5   5 5   5  5  5 U
-U 7 QR  7     7   7 7   7  7  7 U
-U 8QQR8 88888 88888 88888 88888 U
-U   TUV                         U
-U 11111 11111 11111 11111 1   1 U
-U 3   3 3     3   2 3     3   3 U
-U 44444 4444  44444 QQR   44444 U
-U 55    5     5   5STUVW  5   5 U
-U 7  7  7     7   7 QQ    7   7 U
-U 8   8 88888 8   8 88888 8   8 U
+U                               U
+U                               U
+U                324            U
+U    U   U  UUUUU  UUUUU  UUUUU U
+U    U  U    U  U    U      U   U
+U    U U     UUUU    U    1 U   U
+U    UU      U 1     U    2 U   U
+U    U1UU    U 2     U    3 U   U
+U    U   UU  U 3   UUUUU    U   U
+U                               U
+U      TT  UU  VVV  WWW         U
+U                               U
+U    111222333   555666   88    U
+U                               U
