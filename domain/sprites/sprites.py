@@ -22,6 +22,7 @@ class GameMovingSprite(StaticSprite, ABC):
         self.change_x: int = 0
         self.change_y: int = 0
         self.highest_increment = 100
+        self.collision_happened = False
 
     def __limit_speed(self) -> None:
         self.change_x = min(self.highest_increment, self.change_x)
@@ -64,7 +65,7 @@ class GameMovingSprite(StaticSprite, ABC):
         Speed factor should not be greater than half of the size of the sprite
         otherwise movement will not be fluid anymore
         """
-        if abs(self.change_x) < self.image.width / 2:
+        if abs(self.change_x) < self.image.width / 4:
             self.change_x *= factor_x
         if abs(self.change_y) < self.image.height / 2:
             self.change_y *= factor_y
@@ -82,6 +83,17 @@ class GameMovingSprite(StaticSprite, ABC):
         pos_x, pos_y = position
         self.image.image.set_position(pos_x, pos_y - self.image.height)
 
+    def get_x_direction(self) -> int:
+        return self.change_x
+
+    def get_y_direction(self) -> int:
+        return self.change_y
+    
+    def get_collision_happened(self) -> bool:
+        return self.collision_happened
+
+    def set_collision_happened(self, collision_happened: bool) -> bool:
+        self.collision_happened = collision_happened
 
 class UserControlledGameMovingSprite(GameMovingSprite, ABC):
     """
@@ -160,6 +172,7 @@ class Ball(GameMovingSprite):
            (self.image.image.get_pos_y() < 1 or \
             self.image.image.get_pos_y() + self.image.height > self.display.screen_height):
             self.change_y = -self.change_y
+            # Check if the ball went below the player 
             if self.image.image.get_pos_y() + self.image.height > self.display.screen_height:
                 self.win_lost_management.inform_player_lost()
                 self.sound_missed_ball.play()

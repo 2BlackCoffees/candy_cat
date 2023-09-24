@@ -84,40 +84,55 @@ class CollisionHandlerSprites(CollisionHandler):
         key = self.PERIMETER_OPTIMIZED if optimized else self.PERIMETER
         return self.__get_moved_perimeter_to_position(pos_x, pos_y, sprites[sprite][key])
 
-    def __points_collision(self, from_perimeter: List[Dict[str, int]], perimeter: List[Dict[str, int]]) -> Tuple[bool, Dict[str, int]]:
+    def __points_collision(self, 
+                           moving_sprite_perimeter: List[Dict[str, int]], 
+                           moving_sprite: GameMovingSprite, 
+                           perimeter: List[Dict[str, int]]) -> Tuple[bool, Dict[str, int]]:
         """
         Analyzes if a collision happened and which side collided
         """
-        from_top_left_corner, from_bottom_right_corner = from_perimeter
-        top_left_corner,      bottom_right_corner      = perimeter
+        moving_sprite_x_direction: int = moving_sprite.get_x_direction()
+        moving_sprite_y_direction: int = moving_sprite.get_y_direction()
+        moving_sprite_top_left_corner, moving_sprite_bottom_right_corner = moving_sprite_perimeter
+        top_left_corner,               bottom_right_corner               = perimeter
         has_bumped: bool = False
-        from_side_bumped: Dict[str, int] = {}
-
-        if not (from_top_left_corner['x']     > bottom_right_corner['x'] or \
-                from_bottom_right_corner['x'] < top_left_corner['x'] or \
-                from_top_left_corner['y']     > bottom_right_corner['y'] or \
-                from_bottom_right_corner['y'] < top_left_corner['y']):
+        moving_sprite_side_bumped: Dict[str, int] = {}
+        if not moving_sprite.get_collision_happened() and \
+           not (moving_sprite_top_left_corner['x']     > bottom_right_corner['x'] or \
+                moving_sprite_bottom_right_corner['x'] < top_left_corner['x'] or \
+                moving_sprite_top_left_corner['y']     > bottom_right_corner['y'] or \
+                moving_sprite_bottom_right_corner['y'] < top_left_corner['y']):
             has_bumped = True
-            from_diff_left   = bottom_right_corner['x']      - from_top_left_corner['x']
-            from_diff_right  = from_bottom_right_corner['x'] - top_left_corner['x']
-            from_diff_top    = from_bottom_right_corner['y'] - top_left_corner['y']
-            from_diff_bottom = bottom_right_corner['y']      - from_top_left_corner['y']
-            diff_horizontal  = min(from_diff_left, from_diff_right)
-            diff_vertical    = min(from_diff_top, from_diff_bottom)
+            moving_sprite_diff_left   = bottom_right_corner['x']               - moving_sprite_top_left_corner['x'] - moving_sprite_x_direction
+            moving_sprite_diff_right  = moving_sprite_bottom_right_corner['x'] + moving_sprite_x_direction - top_left_corner['x']
+            moving_sprite_diff_top    = moving_sprite_bottom_right_corner['y'] + moving_sprite_y_direction - top_left_corner['y']
+            moving_sprite_diff_bottom = bottom_right_corner['y']               - moving_sprite_top_left_corner['y'] 
+            moving_sprite_next_diff_left   = bottom_right_corner['x']               - moving_sprite_top_left_corner['x'] 
+            moving_sprite_next_diff_right  = moving_sprite_bottom_right_corner['x'] - top_left_corner['x']
+            moving_sprite_next_diff_top    = moving_sprite_bottom_right_corner['y'] - top_left_corner['y']
+            moving_sprite_next_diff_bottom = bottom_right_corner['y']               - moving_sprite_top_left_corner['y'] 
+            diff_horizontal  = min(moving_sprite_diff_left, moving_sprite_diff_right)
+            diff_vertical    = min(moving_sprite_diff_top, moving_sprite_diff_bottom)
+            next_diff_horizontal  = min(moving_sprite_next_diff_left, moving_sprite_next_diff_right)
+            next_diff_vertical    = min(moving_sprite_next_diff_top, moving_sprite_next_diff_bottom)
 
             if diff_horizontal < diff_vertical:
-                if from_diff_top < from_diff_bottom:
-                    from_side_bumped[self.HORIZONTAL] = from_diff_top
-                else:
-                    from_side_bumped[self.HORIZONTAL] = -from_diff_bottom
+                #if (not moving_sprite.get_collision_happened()) or next_diff_horizontal < next_diff_vertical:
+                    if moving_sprite_diff_top < moving_sprite_diff_bottom:
+                        moving_sprite_side_bumped[self.HORIZONTAL] = moving_sprite_diff_top
+                    else:
+                        moving_sprite_side_bumped[self.HORIZONTAL] = -moving_sprite_diff_bottom
 
             elif diff_horizontal > diff_vertical:
-                if from_diff_left < from_diff_right:
-                    from_side_bumped[self.VERTICAL] = from_diff_left
-                else:
-                    from_side_bumped[self.VERTICAL] = -from_diff_right
+                #if (not moving_sprite.get_collision_happened()) or next_diff_horizontal > next_diff_vertical:
+                    if moving_sprite_diff_left < moving_sprite_diff_right:
+                        moving_sprite_side_bumped[self.VERTICAL] = moving_sprite_diff_left
+                    else:
+                        moving_sprite_side_bumped[self.VERTICAL] = -moving_sprite_diff_right
+            
+        moving_sprite.set_collision_happened(has_bumped)
 
-        return has_bumped, from_side_bumped
+        return has_bumped, moving_sprite_side_bumped
 
     def horizontal_collision_side_bumped(self, from_side_bumped: Dict[str, int]) -> Tuple[bool, int]:
         """
@@ -144,18 +159,18 @@ class CollisionHandlerSprites(CollisionHandler):
         """
         
         moving_sprites_collided: Dict[StaticSprite, Dict[str, int]] = {}
-        from_sprite: GameMovingSprite = None
+        moving_sprite: GameMovingSprite = None
         dynamic_sprites = self.dynamic_sprites.copy()
         sprites = self.sprites.copy()
-        for from_sprite in dynamic_sprites:
-            from_side_bumped: Dict[str, int] = self.check_for_collision(from_sprite, sprites, optimized_perimeter)
-            if from_side_bumped is not None:
-                moving_sprites_collided[from_sprite] = from_side_bumped
+        for moving_sprite in dynamic_sprites:
+            moving_sprite_side_bumped: Dict[str, int] = self.check_for_collision(moving_sprite, sprites, optimized_perimeter)
+            if moving_sprite_side_bumped is not None:
+                moving_sprites_collided[moving_sprite] = moving_sprite_side_bumped
 
-        for from_sprite, from_side_bumped in moving_sprites_collided.items():
-            from_sprite.bumped(from_side_bumped)
+        for moving_sprite, moving_sprite_side_bumped in moving_sprites_collided.items():
+            moving_sprite.bumped(moving_sprite_side_bumped)
 
-    def check_for_collision(self, from_sprite: GameMovingSprite, \
+    def check_for_collision(self, moving_sprite: GameMovingSprite, \
         sprites: Dict[StaticSprite, Dict[str, List[Dict[str, int]]]] = None, \
             optimized_perimeter: bool = True) -> Dict[str, int]:
         """
@@ -166,15 +181,17 @@ class CollisionHandlerSprites(CollisionHandler):
         
         if sprites is None:
             sprites = self.sprites.copy()
-        from_perimeter = self.__get_perimeter(from_sprite, optimized_perimeter, sprites)
+        moving_sprite_perimeter = self.__get_perimeter(moving_sprite, optimized_perimeter, sprites)
         for sprite in sprites:
-            if sprite != from_sprite:
+            if sprite != moving_sprite:
                 perimeter: List[Dict[str, int]] = self.__get_perimeter(sprite, optimized_perimeter, sprites)
-                has_bumped, from_side_bumped = \
-                        self.__points_collision(from_perimeter, perimeter)
+                has_bumped, moving_sprite_side_bumped = \
+                        self.__points_collision(moving_sprite_perimeter, 
+                                                moving_sprite, 
+                                                perimeter)
                 if has_bumped:
-                    sprite.bumped(from_side_bumped)
-                    return from_side_bumped
+                    sprite.bumped(moving_sprite_side_bumped)
+                    return moving_sprite_side_bumped
         return None
 
     def add_score(self, add_score: int) -> None:
