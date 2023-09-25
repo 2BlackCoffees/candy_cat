@@ -102,43 +102,59 @@ class CollisionHandlerSprites(CollisionHandler):
         moving_sprite_x_direction: int = moving_sprite.get_x_direction()
         moving_sprite_y_direction: int = moving_sprite.get_y_direction()
         moving_sprite_top_left_corner, moving_sprite_bottom_right_corner = moving_sprite_perimeter
-        moving_sprite_top_right_corner, moving_sprite_bottom_left_corner = self.__get_top_right_bottom_left_corners(moving_sprite_perimeter)
         top_left_corner,               bottom_right_corner               = perimeter
-        top_right_corner, bottom_left_corner = self.__get_top_right_bottom_left_corners(perimeter)
         has_bumped: bool = False
         moving_sprite_side_bumped: Dict[str, int] = {}
+
         if not (moving_sprite_top_left_corner['x']     > bottom_right_corner['x'] or \
                 moving_sprite_bottom_right_corner['x'] < top_left_corner['x'] or \
                 moving_sprite_top_left_corner['y']     > bottom_right_corner['y'] or \
-                moving_sprite_bottom_right_corner['y'] < top_left_corner['y']) or \
-           not (moving_sprite_top_right_corner['x']    < bottom_left_corner['x'] or \
-                moving_sprite_bottom_left_corner['x']  > top_right_corner['x'] or \
-                moving_sprite_top_right_corner['y']    < bottom_left_corner['y'] or \
-                moving_sprite_bottom_left_corner['y']  > top_right_corner['y']):
+                moving_sprite_bottom_right_corner['y'] < top_left_corner['y']):# or \
+
             has_bumped = True
-            if moving_sprite.get_collision_happened():
-                for index in range(1, 6):
-                    moving_sprite_top_left_corner_next_x = moving_sprite_top_left_corner['x'] + (index / 2.0) * moving_sprite_x_direction
-                    moving_sprite_bottom_right_corner_next_x = moving_sprite_bottom_right_corner['x'] + (index / 2.0) * moving_sprite_x_direction
-                    moving_sprite_top_left_corner_next_y = moving_sprite_top_left_corner['y'] + (index / 2.0) * moving_sprite_y_direction
-                    moving_sprite_bottom_right_corner_next_y = moving_sprite_bottom_right_corner['y'] + (index / 2.0) * moving_sprite_y_direction
-                    
-                    moving_sprite_top_right_corner_next_x = moving_sprite_top_right_corner['x'] + (index / 2.0) * moving_sprite_x_direction
-                    moving_sprite_bottom_left_corner_next_x = moving_sprite_bottom_left_corner['x'] + (index / 2.0) * moving_sprite_x_direction
-                    moving_sprite_top_right_corner_next_y = moving_sprite_top_right_corner['y'] + (index / 2.0) * moving_sprite_y_direction
-                    moving_sprite_bottom_left_corner_next_y = moving_sprite_bottom_left_corner['y'] + (index / 2.0) * moving_sprite_y_direction
+            index = 1.8
+            moving_sprite_top_left_corner_next_x = moving_sprite_top_left_corner['x'] + (index) * moving_sprite_x_direction
+            moving_sprite_bottom_right_corner_next_x = moving_sprite_bottom_right_corner['x'] + (index) * moving_sprite_x_direction
+            moving_sprite_top_left_corner_next_y = moving_sprite_top_left_corner['y'] + (index) * moving_sprite_y_direction
+            moving_sprite_bottom_right_corner_next_y = moving_sprite_bottom_right_corner['y'] + (index) * moving_sprite_y_direction
+
+            moving_sprite_diff_left   = bottom_right_corner['x']               - moving_sprite_top_left_corner_next_x 
+            moving_sprite_diff_right  = moving_sprite_bottom_right_corner_next_x - top_left_corner['x']
+            moving_sprite_diff_top    = moving_sprite_bottom_right_corner_next_y - top_left_corner['y']
+            moving_sprite_diff_bottom = bottom_right_corner['y']               - moving_sprite_top_left_corner_next_y 
+            diff_horizontal  = min(moving_sprite_diff_left, moving_sprite_diff_right)
+            diff_vertical    = min(moving_sprite_diff_top, moving_sprite_diff_bottom)
+
+            check_next_move = [ (-moving_sprite_x_direction, moving_sprite_y_direction),\
+                                (moving_sprite_x_direction, -moving_sprite_y_direction),\
+                                (-moving_sprite_x_direction, -moving_sprite_y_direction)]
+            if diff_vertical < diff_horizontal:
+                check_next_move = [ (moving_sprite_x_direction, -moving_sprite_y_direction),\
+                                    (-moving_sprite_x_direction, moving_sprite_y_direction),\
+                                    (-moving_sprite_x_direction, -moving_sprite_y_direction)]
+
+            selected_moving_sprite_x_direction: int = -moving_sprite_x_direction
+            selected_moving_sprite_y_direction: int = -moving_sprite_y_direction
+            found_push_back = False
+
+            for (tmp_moving_sprite_x_direction, tmp_moving_sprite_y_direction) in check_next_move:
+                for index in [1.0, 1.2, 1.5]:
+                    moving_sprite_top_left_corner_next_x = moving_sprite_top_left_corner['x'] + (index) * tmp_moving_sprite_x_direction
+                    moving_sprite_bottom_right_corner_next_x = moving_sprite_bottom_right_corner['x'] + (index) * tmp_moving_sprite_x_direction
+                    moving_sprite_top_left_corner_next_y = moving_sprite_top_left_corner['y'] + (index) * tmp_moving_sprite_y_direction
+                    moving_sprite_bottom_right_corner_next_y = moving_sprite_bottom_right_corner['y'] + (index) * tmp_moving_sprite_y_direction
 
                     if (moving_sprite_top_left_corner_next_x     > bottom_right_corner['x'] or \
                         moving_sprite_bottom_right_corner_next_x < top_left_corner['x'] or \
                         moving_sprite_top_left_corner_next_y     > bottom_right_corner['y'] or \
-                        moving_sprite_bottom_right_corner_next_y < top_left_corner['y']) or \
-                       (moving_sprite_top_right_corner_next_x    > bottom_left_corner['x'] or \
-                        moving_sprite_bottom_left_corner_next_x  < top_right_corner['x'] or \
-                        moving_sprite_top_right_corner_next_y    > bottom_left_corner['y'] or \
-                        moving_sprite_bottom_left_corner_next_y  < top_right_corner['y']):
-                        has_bumped = False
-                        break
-                        
+                        moving_sprite_bottom_right_corner_next_y < top_left_corner['y']):
+                            selected_moving_sprite_x_direction = tmp_moving_sprite_x_direction
+                            selected_moving_sprite_y_direction = tmp_moving_sprite_y_direction
+                            found_push_back = True
+                            break
+                if found_push_back:
+                    break
+
             if has_bumped:
                 moving_sprite_diff_left   = bottom_right_corner['x']               - moving_sprite_top_left_corner['x'] 
                 moving_sprite_diff_right  = moving_sprite_bottom_right_corner['x'] - top_left_corner['x']
@@ -147,14 +163,14 @@ class CollisionHandlerSprites(CollisionHandler):
                 diff_horizontal  = min(moving_sprite_diff_left, moving_sprite_diff_right)
                 diff_vertical    = min(moving_sprite_diff_top, moving_sprite_diff_bottom)
 
-                if diff_horizontal < diff_vertical:
+                if selected_moving_sprite_x_direction == -moving_sprite_x_direction:
                     #if (not moving_sprite.get_collision_happened()) or next_diff_horizontal < next_diff_vertical:
                         if moving_sprite_diff_top < moving_sprite_diff_bottom:
                             moving_sprite_side_bumped[self.HORIZONTAL] = moving_sprite_diff_top
                         else:
                             moving_sprite_side_bumped[self.HORIZONTAL] = -moving_sprite_diff_bottom
 
-                elif diff_horizontal > diff_vertical:
+                if selected_moving_sprite_y_direction == -moving_sprite_y_direction:
                     #if (not moving_sprite.get_collision_happened()) or next_diff_horizontal > next_diff_vertical:
                         if moving_sprite_diff_left < moving_sprite_diff_right:
                             moving_sprite_side_bumped[self.VERTICAL] = moving_sprite_diff_left

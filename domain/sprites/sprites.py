@@ -177,7 +177,7 @@ class Ball(GameMovingSprite):
                 self.win_lost_management.inform_player_lost()
                 self.sound_missed_ball.play()
 
-        elif horizontal_collision or \
+        if horizontal_collision or \
            (self.image.image.get_pos_x() < 1 or \
             self.image.image.get_pos_x() + self.image.width > self.display.screen_width):
             self.change_x = -self.change_x
@@ -317,6 +317,7 @@ class Player(UserControlledGameMovingSprite):
         """
         Ball bumped with the player
         """
+        
         self.sound.play()
         horizontal_collision, _ = \
             self.collision_handler.horizontal_collision_side_bumped(from_side_bumped)
