@@ -212,6 +212,15 @@ class CollisionHandlerSprites(CollisionHandler):
         for moving_sprite in dynamic_sprites:
             moving_sprite_side_bumped: Dict[str, int] = self.check_for_collision(moving_sprite, sprites, optimized_perimeter)
             if moving_sprite_side_bumped is not None:
+                #TODO: Before deciding on the side of the collision, we should verify if anything is blocking the ball:
+                # Typically the object generating the collision defines the next direction, however, 
+                # the next direction might hit another object and thus we should check if this other object exists.
+                # If the object exists, then the side bumped might need some adaptation
+                #   ##
+                #   0 (Ball coming from (-5, -5). on the corner of the brick of the left)
+                #      The collision then says change movement to 5, -5 but this will hit the brick on the right
+                #      Once hit the direction will become (5, 5)
+                #    If the 2 bricks had been properly analyzed we would have been moving from (-5, -5) to (-5, 5)
                 moving_sprites_collided[moving_sprite] = moving_sprite_side_bumped
 
         for moving_sprite, moving_sprite_side_bumped in moving_sprites_collided.items():
