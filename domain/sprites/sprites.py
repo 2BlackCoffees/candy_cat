@@ -5,6 +5,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Tuple
 from typing import Dict
+from random import random
+from time import time
 from domain.common import Common
 from domain.game_task_handler import WinLostManagement
 from domain.sprites.base_classes.static_sprite import Brick
@@ -59,6 +61,12 @@ class GameMovingSprite(StaticSprite, ABC):
         """
         return (self.image.image.get_pos_x() + self.change_x,
                 self.image.image.get_pos_y() + self.change_y)
+
+    def adapt_infinte_loop(self):
+        if random() < 0.5:
+            self.change_x = max(self.change_x * 10 / 15, self.image.width / 3)
+        else:
+            self.change_y = max(self.change_y * 10 / 15, self.image.height / 3)
 
     def change_speed_factor(self, factor_x: int, factor_y: int) -> None:
         """
@@ -255,6 +263,10 @@ class Player(UserControlledGameMovingSprite):
         super().__init__(screen)
         self.sound: SoundPlayer = SoundPlayer([Common.BUMP_PLAYER])
         self.next_position_x: int = 0
+        self.last_time_bump: float = time()
+        self.max_time_between_player_bump: int = 15
+        self.max_time_between_player_bump_after_timeout: int = 1
+        self.timeout_happened: bool = False
 
     def set_position(self, pos_x: int, pos_y: int) -> StaticSprite:
         """
@@ -317,13 +329,22 @@ class Player(UserControlledGameMovingSprite):
         """
         Ball bumped with the player
         """
-        
+        self.last_time_bump = time()
+        self.timeout_happened = False
+        #Here we must save the last time for the ball that player was touched!
+        #    Then each other bump should check time diff and update increment y or x if overtime is reached
         self.sound.play()
         horizontal_collision, _ = \
             self.collision_handler.horizontal_collision_side_bumped(from_side_bumped)
         if horizontal_collision:
             self.collision_handler.add_score(10)
 
+    def timeout(self) -> bool:
+        if (time() - self.last_time_bump) > self.max_time_between_player_bump if not self.timeout_happened else self.max_time_between_player_bump_after_timeout:
+            self.last_time_bump = time()
+            self.timeout_happened = True
+            return True
+        return False
 
     def move(self) -> None:
         """
