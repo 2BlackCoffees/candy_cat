@@ -264,7 +264,7 @@ class Player(UserControlledGameMovingSprite):
         self.sound: SoundPlayer = SoundPlayer([Common.BUMP_PLAYER])
         self.next_position_x: int = 0
         self.last_time_bump: float = time()
-        self.max_time_between_player_bump: int = 15
+        self.max_time_between_player_bump: int = 25
         self.max_time_between_player_bump_after_timeout: int = 1
         self.timeout_happened: bool = False
 
