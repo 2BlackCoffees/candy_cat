@@ -308,7 +308,6 @@ class CollisionHandlerSprites(CollisionHandler):
         before moving: this will call the method bumped of all moving sprites
         that collided
         """
-        pprint(self.sprite_ids_around_sprite_id)
 
         if sprites_to_perimeter is None:
             sprites_to_perimeter = self.sprites_to_perimeter.copy()
