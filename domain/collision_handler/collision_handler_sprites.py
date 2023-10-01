@@ -39,18 +39,16 @@ class CollisionHandlerSprites(CollisionHandler):
         return_sprites: List[StaticSprite] = [ sprite for sprite in sprites_to_perimeter.keys() \
                                               if sprite.get_unique_id() in sprite_ids]
         return return_sprites    
-    @staticmethod
-    def __get_coordinates_wh(sprite: StaticSprite):
-       (sprite_pos_x, sprite_pos_y) = sprite.get_position_for_collision_analysis()
-       (sprite_width, sprite_height) = (sprite.get_width() + sprite_pos_x, sprite.get_height() + sprite_pos_y)
-       return (sprite_pos_x, sprite_pos_y, sprite_width, sprite_height)
-         
-    def __update_perimeters_around_added_sprite(self, current_sprite: StaticSprite, optimized: bool) -> None:
-        # TODO: Search here for all spites close to each other sprite
-        (current_sprite_pos_x, current_sprite_pos_y, current_sprite_width, current_sprite_height) = \
-            CollisionHandlerSprites.__get_coordinates_wh(current_sprite)
-        
 
+    def __get_coordinates_corners(self, sprite: StaticSprite, optimized: bool = True):
+       perimeter = self.__get_perimeter(sprite, optimized, self.sprites_to_perimeter)
+       return (perimeter[0]['x'], perimeter[0]['y'], perimeter[1]['x'], perimeter[1]['y'])
+         
+    def __update_perimeters_around_added_sprite(self, current_sprite: StaticSprite, 
+                                                optimized: bool) -> None:
+        (current_sprite_pos_x, current_sprite_pos_y, current_sprite_width, current_sprite_height) = \
+            self.__get_coordinates_corners(current_sprite)
+        
         self.sprite_ids_around_sprite_id[current_sprite.get_unique_id()] = []
         max_diff: int = 2
         sprite_list: List[StaticSprite] = [sprite for sprite in self.sprites_to_perimeter \
@@ -58,7 +56,7 @@ class CollisionHandlerSprites(CollisionHandler):
 
         for other_sprite in sprite_list:
             (other_sprite_pos_x, other_sprite_pos_y, other_sprite_width, other_sprite_height) = \
-                CollisionHandlerSprites.__get_coordinates_wh(other_sprite)
+                self.__get_coordinates_corners(other_sprite)
             if (abs(current_sprite_pos_x + current_sprite_width - other_sprite_pos_x)   < max_diff or \
                 current_sprite_pos_x == other_sprite_pos_x or \
                 abs(other_sprite_pos_x + other_sprite_width - current_sprite_pos_x) < max_diff) \
@@ -150,11 +148,10 @@ class CollisionHandlerSprites(CollisionHandler):
 
             has_bumped = True
 
-            index = 1
-            moving_sprite_top_left_corner_next_x = moving_sprite_top_left_corner['x'] + (index) * moving_sprite_x_direction
-            moving_sprite_bottom_right_corner_next_x = moving_sprite_bottom_right_corner['x'] + (index) * moving_sprite_x_direction
-            moving_sprite_top_left_corner_next_y = moving_sprite_top_left_corner['y'] + (index) * moving_sprite_y_direction
-            moving_sprite_bottom_right_corner_next_y = moving_sprite_bottom_right_corner['y'] + (index) * moving_sprite_y_direction
+            moving_sprite_top_left_corner_next_x = moving_sprite_top_left_corner['x'] +  moving_sprite_x_direction
+            moving_sprite_bottom_right_corner_next_x = moving_sprite_bottom_right_corner['x'] +  moving_sprite_x_direction
+            moving_sprite_top_left_corner_next_y = moving_sprite_top_left_corner['y'] +  moving_sprite_y_direction
+            moving_sprite_bottom_right_corner_next_y = moving_sprite_bottom_right_corner['y'] +  moving_sprite_y_direction
     
             moving_sprite_diff_left   = bottom_right_corner['x']               - moving_sprite_top_left_corner_next_x 
             moving_sprite_diff_right  = moving_sprite_bottom_right_corner_next_x - top_left_corner['x']
@@ -173,26 +170,21 @@ class CollisionHandlerSprites(CollisionHandler):
     
             selected_moving_sprite_x_direction: int = -moving_sprite_x_direction
             selected_moving_sprite_y_direction: int = -moving_sprite_y_direction
-            found_push_back = False
     
             for (tmp_moving_sprite_x_direction, tmp_moving_sprite_y_direction) in check_next_move:
-                #for index in [1.0, 1.2, 1.5]:
-                    moving_sprite_top_left_corner_next_x = moving_sprite_top_left_corner['x'] + (index) * tmp_moving_sprite_x_direction
-                    moving_sprite_bottom_right_corner_next_x = moving_sprite_bottom_right_corner['x'] + (index) * tmp_moving_sprite_x_direction
-                    moving_sprite_top_left_corner_next_y = moving_sprite_top_left_corner['y'] + (index) * tmp_moving_sprite_y_direction
-                    moving_sprite_bottom_right_corner_next_y = moving_sprite_bottom_right_corner['y'] + (index) * tmp_moving_sprite_y_direction
+                moving_sprite_top_left_corner_next_x = moving_sprite_top_left_corner['x'] + tmp_moving_sprite_x_direction
+                moving_sprite_bottom_right_corner_next_x = moving_sprite_bottom_right_corner['x'] + tmp_moving_sprite_x_direction
+                moving_sprite_top_left_corner_next_y = moving_sprite_top_left_corner['y'] + tmp_moving_sprite_y_direction
+                moving_sprite_bottom_right_corner_next_y = moving_sprite_bottom_right_corner['y'] + tmp_moving_sprite_y_direction
     
-                    if (moving_sprite_top_left_corner_next_x     > bottom_right_corner['x'] or \
-                        moving_sprite_bottom_right_corner_next_x < top_left_corner['x'] or \
-                        moving_sprite_top_left_corner_next_y     > bottom_right_corner['y'] or \
-                        moving_sprite_bottom_right_corner_next_y < top_left_corner['y']):
-                            selected_moving_sprite_x_direction = tmp_moving_sprite_x_direction
-                            selected_moving_sprite_y_direction = tmp_moving_sprite_y_direction
-                            found_push_back = True
-                            break
-                # if found_push_back:
-                #     break
-    
+                if (moving_sprite_top_left_corner_next_x     > bottom_right_corner['x'] or \
+                    moving_sprite_bottom_right_corner_next_x < top_left_corner['x'] or \
+                    moving_sprite_top_left_corner_next_y     > bottom_right_corner['y'] or \
+                    moving_sprite_bottom_right_corner_next_y < top_left_corner['y']):
+                        selected_moving_sprite_x_direction = tmp_moving_sprite_x_direction
+                        selected_moving_sprite_y_direction = tmp_moving_sprite_y_direction
+                        break
+
             moving_sprite_diff_left   = bottom_right_corner['x']               - moving_sprite_top_left_corner['x'] 
             moving_sprite_diff_right  = moving_sprite_bottom_right_corner['x'] - top_left_corner['x']
             moving_sprite_diff_top    = moving_sprite_bottom_right_corner['y'] - top_left_corner['y']
@@ -201,18 +193,17 @@ class CollisionHandlerSprites(CollisionHandler):
             diff_vertical    = min(moving_sprite_diff_top, moving_sprite_diff_bottom)
     
             if selected_moving_sprite_x_direction == -moving_sprite_x_direction:
-                #if (not moving_sprite.get_collision_happened()) or next_diff_horizontal < next_diff_vertical:
-                    if moving_sprite_diff_top < moving_sprite_diff_bottom:
-                        moving_sprite_side_bumped[self.HORIZONTAL] = moving_sprite_diff_top
-                    else:
-                        moving_sprite_side_bumped[self.HORIZONTAL] = -moving_sprite_diff_bottom
+                if moving_sprite_diff_top < moving_sprite_diff_bottom:
+                    moving_sprite_side_bumped[self.HORIZONTAL] = moving_sprite_diff_top
+                else:
+                    moving_sprite_side_bumped[self.HORIZONTAL] = -moving_sprite_diff_bottom
     
             if selected_moving_sprite_y_direction == -moving_sprite_y_direction:
-                #if (not moving_sprite.get_collision_happened()) or next_diff_horizontal > next_diff_vertical:
-                    if moving_sprite_diff_left < moving_sprite_diff_right:
-                        moving_sprite_side_bumped[self.VERTICAL] = moving_sprite_diff_left
-                    else:
-                        moving_sprite_side_bumped[self.VERTICAL] = -moving_sprite_diff_right
+                if moving_sprite_diff_left < moving_sprite_diff_right:
+                    moving_sprite_side_bumped[self.VERTICAL] = moving_sprite_diff_left
+                else:
+                    moving_sprite_side_bumped[self.VERTICAL] = -moving_sprite_diff_right
+
         return has_bumped, moving_sprite_side_bumped
     
     def __points_collision(self, 
@@ -286,15 +277,6 @@ class CollisionHandlerSprites(CollisionHandler):
         for moving_sprite in dynamic_sprites:
             moving_sprite_side_bumped: Dict[str, int] = self.check_for_collision(moving_sprite, sprites, optimized_perimeter)
             if moving_sprite_side_bumped is not None:
-                #TODO: Before deciding on the side of the collision, we should verify if anything is blocking the ball:
-                # Typically the object generating the collision defines the next direction, however, 
-                # the next direction might hit another object and thus we should check if this other object exists.
-                # If the object exists, then the side bumped might need some adaptation
-                #   ##
-                #   0 (Ball coming from (-5, -5). on the corner of the brick of the left)
-                #      The collision then says change movement to 5, -5 but this will hit the brick on the right
-                #      Once hit the direction will become (5, 5)
-                #    If the 2 bricks had been properly analyzed we would have been moving from (-5, -5) to (-5, 5)
                 moving_sprites_collided[moving_sprite] = moving_sprite_side_bumped
 
         for moving_sprite, moving_sprite_side_bumped in moving_sprites_collided.items():
