@@ -40,14 +40,14 @@ class CollisionHandlerSprites(CollisionHandler):
                                               if sprite.get_unique_id() in sprite_ids]
         return return_sprites    
 
-    def __get_coordinates_corners(self, sprite: StaticSprite, optimized: bool = True):
+    def __get_coordinates_corners(self, sprite: StaticSprite, optimized: bool):
        perimeter = self.__get_perimeter(sprite, optimized, self.sprites_to_perimeter)
        return (perimeter[0]['x'], perimeter[0]['y'], perimeter[1]['x'], perimeter[1]['y'])
          
     def __update_perimeters_around_added_sprite(self, current_sprite: StaticSprite, 
                                                 optimized: bool) -> None:
         (current_sprite_pos_x, current_sprite_pos_y, current_sprite_width, current_sprite_height) = \
-            self.__get_coordinates_corners(current_sprite)
+            self.__get_coordinates_corners(current_sprite, optimized)
         
         self.sprite_ids_around_sprite_id[current_sprite.get_unique_id()] = []
         max_diff: int = 2
@@ -56,7 +56,7 @@ class CollisionHandlerSprites(CollisionHandler):
 
         for other_sprite in sprite_list:
             (other_sprite_pos_x, other_sprite_pos_y, other_sprite_width, other_sprite_height) = \
-                self.__get_coordinates_corners(other_sprite)
+                self.__get_coordinates_corners(other_sprite, optimized)
             if (abs(current_sprite_pos_x + current_sprite_width - other_sprite_pos_x)   < max_diff or \
                 current_sprite_pos_x == other_sprite_pos_x or \
                 abs(other_sprite_pos_x + other_sprite_width - current_sprite_pos_x) < max_diff) \
@@ -290,6 +290,7 @@ class CollisionHandlerSprites(CollisionHandler):
         before moving: this will call the method bumped of all moving sprites
         that collided
         """
+        #pprint(self.sprite_ids_around_sprite_id)
 
         if sprites_to_perimeter is None:
             sprites_to_perimeter = self.sprites_to_perimeter.copy()
