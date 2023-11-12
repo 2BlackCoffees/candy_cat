@@ -7,6 +7,7 @@ from typing import Tuple
 from typing import Dict
 from random import random
 from time import time
+from datetime import datetime
 from domain.common import Common
 from domain.game_task_handler import WinLostManagement
 from domain.sprites.base_classes.static_sprite import Brick
@@ -96,12 +97,6 @@ class GameMovingSprite(StaticSprite, ABC):
 
     def get_y_direction(self) -> int:
         return self.change_y
-    
-    def get_collision_happened(self) -> bool:
-        return self.collision_happened
-
-    def set_collision_happened(self, collision_happened: bool) -> bool:
-        self.collision_happened = collision_happened
 
 class UserControlledGameMovingSprite(GameMovingSprite, ABC):
     """
@@ -136,10 +131,13 @@ class Ball(GameMovingSprite):
         self.horizontal_collision: bool = False
         self.vertical_collision: bool = False
         self.win_lost_management: WinLostManagement = None
-        self.change_x: int = 5
-        self.change_y: int = 5
+        self.reset_position()
         self.sound_missed_ball: SoundPlayer = SoundPlayer([Common.MISSED_BALL])
         self.highest_ball_increment: int = max(self.change_x, self.change_y) * 2
+
+    def reset_position(self) -> None:
+        self.change_x: int = 5
+        self.change_y: int = -5
 
     def set_max_increment(self, highest_ball_increment: int) -> Ball:
         super().set_max_increment(highest_ball_increment)
@@ -311,6 +309,7 @@ class Player(UserControlledGameMovingSprite):
         """
         This moves with the mouse
         """
+        #dbg_time_start = datetime.now()
         self.change_x = 0
         self.change_y = 0
         mouse_position_x, _ = mouse_position
@@ -324,6 +323,7 @@ class Player(UserControlledGameMovingSprite):
         #if(mouse_position_y > self.height // 2 and
         # mouse_position_y < self.screen_height - self.height // 2):
         #    self.rect.y = mouse_position_y -  self.height // 2
+        #print(f"mouse_position_move time: {(datetime.now() - dbg_time_start).microseconds / 1000} ms")
 
     def bumped(self, from_side_bumped: Dict[str, int]) -> None:
         """

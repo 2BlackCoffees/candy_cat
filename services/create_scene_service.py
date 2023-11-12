@@ -96,10 +96,12 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
             self.game_index = 0
         game_name = self.game_list[self.game_index]
         self.score: Score = Score(self.screen, self.score_height, self.current_score, self.remaining_balls)
-        self.collision_handler: CollisionHandlerSprites = CollisionHandlerSprites(self.score, self)
+        self.collision_handler: CollisionHandlerSprites = CollisionHandlerSprites(self.score, self, self.screen)
         bricks_creator_service: BricksCreatorService = BricksCreatorService(
             self.from_height, self.screen,
                 ReadGameFromFile(game_name), self.collision_handler)
+        self.collision_handler.set_game_size(bricks_creator_service.get_game_size())
+        self.collision_handler.set_generic_sprite_size(bricks_creator_service.get_generic_brick_size(), self.from_height)
         self.bricks = bricks_creator_service.create_bricks()
         for brick in self.bricks:
             self.collision_handler.subscribe_static(brick)
@@ -126,6 +128,7 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
             self.message = ["You beginner, you lost :-)",
                             f'You have another {self.remaining_balls} ball(s)']
             self.game_state = GameState.WAITING_PLAYER_READY_BEFORE_LEVEL_REPLAY
+            self.ball.reset_position()
         else:
             if self.score_handler.is_wall_of_fames(self.score.get_score()):
                 self.sound_player.play(Common.GO_GAME_BOARD)

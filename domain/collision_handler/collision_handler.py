@@ -3,8 +3,9 @@ This module handles the collision
 """
 from abc import ABC, abstractmethod
 from typing import Tuple
-from typing import Dict
+from typing import Dict, Set, Any
 from domain.sprites.base_classes.base_sprite import BaseSprite
+
 #from pprint import pprint
 class CollisionHandler(ABC):
     """
@@ -45,7 +46,7 @@ class CollisionHandler(ABC):
         """
 
     @abstractmethod
-    def check_for_collision(self, from_sprite: BaseSprite) -> Dict[str, int]:
+    def check_for_collision(self, from_sprite: BaseSprite, dynamic_sprites: Set[Any], optimized_perimeter: bool) -> Dict[str, int]:
         """
         When a sprite is about to move it should verify its position 
         against other sprites

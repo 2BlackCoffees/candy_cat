@@ -42,7 +42,14 @@ class BricksCreatorService():
         self.screen: Canvas = screen
         self.collision_handler: CollisionHandler = collision_handler
         self.brick_map: List[str] = read_game.read_game()
+        self.__dbg_print_table()
+        self.generic_brick_width: int = -1
+        self.generic_brick_height: int = -1
 
+    def __dbg_print_table(self):
+        for x in range(len(self.brick_map)):
+            print(self.brick_map[x].rstrip())
+        
     def open_game(self, filename: str) -> None:
         """
         Read the game
@@ -50,8 +57,10 @@ class BricksCreatorService():
         with open(filename) as file:
             self.brick_map = file.readlines()
 
-    def __create_unbreakable_brick(self, brick_width: int,
-                                   brick_height: int, position: Dict[str, int]) -> None:
+    def __create_unbreakable_brick(self, 
+                                   brick_width: int,
+                                   brick_height: int, 
+                                   position: Dict[str, int]) -> None:
         """
         Helper function to create unbreakable bricks
         """
@@ -85,14 +94,24 @@ class BricksCreatorService():
                     .set_collision_handler(self.collision_handler)\
                         .set_number_bumped(number_bumper_before_vanishes)
 
+    def get_game_size(self) -> Tuple[int, int]:
+        return len(self.brick_map[0]), len(self.brick_map)
+    
+    def get_generic_brick_size(self) -> Tuple[int, int]:
+        if self.generic_brick_width < 0:
+            self.generic_brick_width = self.screen_width / (len(self.brick_map[0]) - 1)
+            self.generic_brick_height = 3 * (self.screen_height - self.from_height) / (4 * len(self.brick_map))
+        
+        return self.generic_brick_width, self.generic_brick_height
+    
     def create_bricks(self) -> List[StaticSprite]:
         """
         Create the world of bricks and place each brich at its expected place
         """
         height: int = self.screen_height - self.from_height
-        brick_width: int = self.screen_width / (len(self.brick_map[0]) - 1)
-        brick_height: int = 3 * height / (4 * len(self.brick_map))
-        self.smallest_brick_side = min(brick_width, brick_height)
+        if self.generic_brick_width < 0:
+            self.generic_brick_width, self.generic_brick_height = self.get_generic_brick_size()
+        self.smallest_brick_side = min(self.generic_brick_width, self.generic_brick_height)
         index_x: int = 0
         index_y: int = 0
         bricks: List[StaticSprite] = []
@@ -105,8 +124,8 @@ class BricksCreatorService():
         for row in self.brick_map:
             for element in row:
                 if element != ' ':
-                    position = {'x':index_x * brick_width + brick_width // 2,
-                                'y':index_y * brick_height + brick_height // 2 + self.from_height}
+                    position = {'x':index_x * self.generic_brick_width + self.generic_brick_width // 2,
+                                'y':index_y * self.generic_brick_height + self.generic_brick_height // 2 + self.from_height}
                     if element == 'U':
                         unbreakable_brick_positions.append(position)
 
@@ -129,18 +148,18 @@ class BricksCreatorService():
         bricks: List[Brick] = []
             
         bricks.extend([self.__create_breakable_brick(
-                    brick_width, brick_height, position,
+                    self.generic_brick_width, self.generic_brick_height, position,
                     number_bumper_before_vanishes,
                     breakable_number_bumper_before_vanishes)
                       for position, number_bumper_before_vanishes in breakable_brick_positions])
 
         bricks.extend([ self.__create_unbreakable_brick(
-                    brick_width, brick_height, position)
+                    self.generic_brick_width, self.generic_brick_height, position)
                       for position in unbreakable_brick_positions ])
 
 
         bricks.extend([self.__create_poisoned_brick(
-                    brick_width, brick_height, position,
+                    self.generic_brick_width, self.generic_brick_height, position,
                     number_bumper_before_vanishes,
                     poisoned_number_bumper_before_vanishes)
                       for position, number_bumper_before_vanishes in poisoned_brick_positions])

@@ -221,9 +221,6 @@ class Canvas(BasicCanvas):
     def quit():
         pygame.quit()
     
-    # Do not use this method in your code!
-    def get_surface(self) -> pygame.Surface:
-        return self.screen
     def __load_image(self, image_path: str, width: int, height:int) -> pygame.Surface:
         image = pygame.image.load(image_path).convert_alpha()
         image = pygame.transform.scale(image, (width, height))

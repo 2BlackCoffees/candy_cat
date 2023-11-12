@@ -85,6 +85,8 @@ class StaticSprite(BaseSprite):
         if self.image is not None:
             del self.image
 
+        width = int(width)
+        height = int(height)
         image_sprite: SpriteImage = self.load_image(width, height, image_path)
 
         perimeter: List[Dict[str, int]] = [{'x': 0, 'y': 0}, {'x': width, 'y': height}]
