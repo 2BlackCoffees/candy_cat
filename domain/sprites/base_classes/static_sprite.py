@@ -44,8 +44,14 @@ class StaticSprite(BaseSprite):
         super().__init__()
         screen_width, screen_height = screen.get_screen_size()
         self.display: Display = Display(screen, screen_width, screen_height)
-        self.my_index: str = str(hex(id(self)))
+        self.unique_id: str = str(hex(id(self)))
 
+    def get_width(self) -> int:
+        return self.image.width
+    
+    def get_height(self) -> int:
+        return self.image.height
+    
     def set_collision_handler(self, collision_handler: CollisionHandler) -> StaticSprite:
         """
         Attach a collision handler
@@ -66,7 +72,7 @@ class StaticSprite(BaseSprite):
         return self
 
     def get_unique_id(self) -> str:
-        return self.my_index
+        return self.unique_id
 
     def load_image(self, width: int, height: int, image_path: str) -> StaticSprite:
         return self.display.screen.load(image_path, width, height)

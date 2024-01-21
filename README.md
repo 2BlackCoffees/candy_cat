@@ -1,12 +1,12 @@
 # Candy Cat
 
-To run this game please make sure you have python3 and pip3 installed.
+To run this game please make sure you have python version 3+ and pip version 3+ installed.
 
 Then:
 
-* `python3 -m pip install -U pygame --user`
-* Clone this repository.
-* Switch to the branch students for students exercises.
+* Clone this repository: `git clone https://github.com/2BlackCoffees/candy_cat`.
+* Install required librairies: `python3 -m pip install -r candy_cat/requirements.txt`
+* Switch to the branch students for students exercises: `cd candy_cat && git checkout students && cd ..`
 * The program can be started as follows: `python3 candy_cat`
 * Exercises to fill are described in the respository students.
 * Once all exercises are finished, bonus exercises are the following:
@@ -17,10 +17,12 @@ Then:
     4. There are (at least) 2 bugs that were left on purpose: 
 
         * Bug 1: The ball does not start at the right position when a game is won and the next one starts.
-        * Bug 2: The ball sometimes bumps against an horizontal or vertical wall but goes in its opposite direction (as if it was a corner instead of horizontal or vertical wall). This is a more complex one.
-    5. Improvements:
-        * Destroyable bricks have all a specific count of bumps before they get destroyed. The remaining number of bumbs should be displayed on the top right of each detroyable brick.
-        * Each tme a brick is destroyed an anmiation should be played (each brick should have its specific animation).
-        * The racket should be able to shoot rockets and destroy the skull bricks. Rockets should destroy unbreakable walls but when a dollar brick is touched then many points should be reduced.
-
-https://github.com/2BlackCoffees/candy_cat/blob/main/CandyCat.mp4
+        * Bug 2: When a game is lost we hear 2 sounds hoevering each other, only the sound rekated to fact that the game is lost should be kept.
+        * Bug 3: Left and right arrow should be controlling the racket. They however do not work.
+        * Bug 4: If there is just the sapce for the ball (between 2 walls) then the ball should move along horizontally or vertically. Currently this is not happening and this must be fixed.
+        * Bug 5: When the ball touches the racket and the racket was moving in one direction or the other, the angle of the direction of the ball should be updated.
+    1. Improvements:
+        * Destroyable bricks have all a specific count of bumps before they get destroyed. The remaining number of bumbs should be displayed on the top right of each detroyable brick within a circle surrounding the number.
+        * Each tme a brick is destroyed an anmiation should be played (each brick type should have its specific animation).
+        * The racket should be able to shoot rockets and destroy the skull bricks. Rockets should destroy unbreakable walls but when a dollar brick is touched then many points should be lost.
+        * A multi player game could be analyzed.

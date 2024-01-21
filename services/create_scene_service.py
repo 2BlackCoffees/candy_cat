@@ -82,9 +82,9 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
 
         self.ball = Ball(self.screen)\
             .set_max_increment(highest_ball_increment)\
-            .set_image(10, 10, Common.BALL_IMAGE_NAME)\
-                .set_position(screen_width // 2, 4 * screen_height // 5)\
-                    .set_collision_handler(self.collision_handler)
+                .set_image(10, 10, Common.BALL_IMAGE_NAME)\
+                    .set_position(screen_width // 2, 4 * screen_height // 5)\
+                        .set_collision_handler(self.collision_handler)
         self.ball.subscribe(self)
         self.collision_handler.subscribe_moving(self.ball)
 
@@ -175,6 +175,8 @@ class CreateSceneService(WinLostManagement, GameTaskChanger):
                 self.player.get_best_ball_place_before_start())
         else:
             self.ball.move()
+            if self.player.timeout(): 
+                self.ball.adapt_infinte_loop()
 
         self.event_dispatcher.process_event()
         self.player.move()

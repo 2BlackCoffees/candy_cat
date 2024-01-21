@@ -1,6 +1,7 @@
 """
 All start here
 First install:
+python3 -m pip install -r candy_cat/requirements.txt
 python3 -m pip install -U pygame --user
 
 

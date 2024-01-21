@@ -16,9 +16,9 @@ def start():
 
     create_scene_service: CreateSceneService = CreateSceneService(
         [Common.GAME_NAME + 'assets/levels/game2',
-        Common.GAME_NAME + 'assets/levels/game4',
-        Common.GAME_NAME + 'assets/levels/game1',
-        Common.GAME_NAME + 'assets/levels/game3'],screen)
+         Common.GAME_NAME + 'assets/levels/game3',
+         Common.GAME_NAME + 'assets/levels/game1',
+         Common.GAME_NAME + 'assets/levels/game1'],screen)
 
 
     while not create_scene_service.is_done():

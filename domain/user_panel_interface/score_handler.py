@@ -25,7 +25,7 @@ class ScoreHandler:
     """
     max_scores: int = 10
     def __init__(self, score_saver: ScoreSaver):
-        self.score_saver = score_saver
+        self.score_saver: ScoreSaver = score_saver
         self.score_list: List[Tuple[str, int]] = self.score_saver.load_scores()
 
     def is_wall_of_fames(self, score: int) -> bool:
